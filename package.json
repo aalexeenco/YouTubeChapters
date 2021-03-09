@@ -1,0 +1,27 @@
+{
+  "name": "youtubechapters-navigation",
+  "version": "1.0.0",
+  "description": "YouTube Chapters Navigation Controls",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
+    "lint": "eslint js --ext .js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/preset-env": "^7.12.1",
+    "@testing-library/dom": "^7.26.5",
+    "@testing-library/jest-dom": "^5.11.5",
+    "eslint": "^7.11.0",
+    "eslint-config-prettier": "^6.14.0",
+    "jest": "^26.6.1",
+    "jest-chrome": "^0.7.0",
+    "jest-stare": "^2.2.0",
+    "prettier": "^2.1.2"
+  },
+  "dependencies": {
+    "@webcomponents/custom-elements": "^1.4.3"
+  }
+}

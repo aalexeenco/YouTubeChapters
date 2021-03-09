@@ -1,0 +1,5 @@
+coverage
+
+jest-stare/
+
+node_modules/

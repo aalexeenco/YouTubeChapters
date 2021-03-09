@@ -1,0 +1,41 @@
+.ytp-player-content.ytp-chapter-title-overlay-container {
+    left: 12px;
+    right: 12px;
+}
+
+.ytp-autohide:not(.ytp-ad-overlay-open) .ytp-chapter-title-overlay-container,
+.ytp-hide-controls .ytp-chapter-title-overlay-container,
+.ytp-autohide .ytp-chapter-title-overlay-container {
+    bottom: 12px;
+}
+
+.ytp-chapter-title-overlay {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.25);
+    color: #fff;
+    padding: 1em;
+    font-size: 1.5em;
+    z-index: 28;
+    opacity: 0;
+    transform: scaleX(0);
+    transform-origin: left;
+}
+
+.ytp-overlay-reveal {
+    animation: fade-in-out 5s linear forwards;
+}
+
+@keyframes fade-in-out {
+    5% {
+        transform: scaleX(1);
+    }
+    10%,
+    80% {
+        opacity: 1;
+    }
+    95% {
+        transform: scaleX(1);
+    }
+}

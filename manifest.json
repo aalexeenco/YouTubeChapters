@@ -1,0 +1,43 @@
+{
+    "name": "Chapters Navigation for YouTube",
+    "version": "1.0",
+    "description": "Navigate YouTube video chapters using Next/Previous buttons and keyboard shortcuts.",
+    "manifest_version": 2,
+    "icons": { 
+      "16": "images/icon16.png",
+      "48": "images/icon48.png",
+      "128": "images/icon128.png" 
+    },
+    "permissions": ["*://*.youtube.com/*"],
+    "background": {
+      "scripts": ["js/background.js"],
+      "persistent": false
+    },
+    "content_scripts": [
+      {
+        "matches": ["*://*.youtube.com/*"],
+        "css": ["css/content.css"],
+        "js": [
+          "node_modules/@webcomponents/custom-elements/custom-elements.min.js",
+          "js/content.js"
+        ]
+      }
+    ],
+    "web_accessible_resources": [
+      "js/modules/*.mjs"
+    ],
+    "commands": {
+      "next-chapter": {
+        "suggested_key": {
+            "default": "Ctrl+Right"
+        },
+        "description": "Next chapter"
+      },
+      "prev-chapter": {
+        "suggested_key": {
+            "default": "Ctrl+Left"
+        },
+        "description": "Previous chapter"
+      }     
+    }
+  }
