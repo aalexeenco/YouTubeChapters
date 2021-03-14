@@ -38,4 +38,4 @@ npm test
 * [VS Code](https://code.visualstudio.com/)
 
 ## License
-[MIT](https://github.com/aalexeenco/YouTubeChapters/blob/master/LICENSE)
+[MIT](./LICENSE)
