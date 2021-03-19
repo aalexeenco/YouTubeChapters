@@ -1,12 +1,12 @@
 # YouTubeChapters Chrome extension
 
 YouTubeChapters is a Chrome browser extension which adds chapter navigation controls to 
-YouTube player.
+the YouTube player.
 
 
 ## Prerequisites
 
-[Node.js](nodejs.org) 14.15.0 or higher.
+[Node.js](https://nodejs.org) v14.15.0 or higher.
 
 ## Installation
 
