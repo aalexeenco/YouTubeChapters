@@ -18,7 +18,7 @@
         "matches": ["*://*.youtube.com/*"],
         "css": ["css/content.css"],
         "js": [
-          "node_modules/@webcomponents/custom-elements/custom-elements.min.js",
+          "js/custom-elements.min.js",
           "js/content.js"
         ]
       }

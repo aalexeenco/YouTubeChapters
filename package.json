@@ -8,6 +8,7 @@
     "prebuild": "npm run clean",
     "build:static": "copyfiles -u 1 \"static/**/*.*\" dist",
     "build:js": "copyfiles \"js/**/*.*\" dist",
+    "build:deps": "copyfiles -f node_modules/@webcomponents/custom-elements/custom-elements.min.js dist/js",
     "build": "npm-run-all build:*",
     "clean": "rimraf dist",
     "coverage": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --coverage",
