@@ -58,6 +58,8 @@ npm test
 * [Prettier](https://prettier.io)
 * [copyfiles][1], [npm-run-all][2], [rimraf][3]
 * [VS Code](https://code.visualstudio.com/)
+* [Git Release](https://github.com/marketplace/actions/git-release) -
+A GitHub Action for creating a GitHub Release with Assets and Changelog
 
 ## License
 [MIT](./LICENSE)
