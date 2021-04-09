@@ -1,6 +1,11 @@
 # YouTubeChapters Chrome extension
 
+[![tests](https://github.com/aalexeenco/YouTubeChapters/actions/workflows/build.yml/badge.svg)](https://github.com/aalexeenco/YouTubeChapters/actions/workflows/build.yml)
 [![codecov](https://codecov.io/gh/aalexeenco/YouTubeChapters/branch/master/graph/badge.svg?token=RA8SD35X9Q)](https://codecov.io/gh/aalexeenco/YouTubeChapters)
+[![version](https://img.shields.io/github/v/release/aalexeenco/YouTubeChapters)](https://github.com/aalexeenco/YouTubeChapters/releases/latest)
+![commits since latest release](https://img.shields.io/github/commits-since/aalexeenco/YouTubeChapters/latest)
+
+
 
 YouTubeChapters is a Chrome browser extension which adds chapter navigation controls to 
 the YouTube player.
