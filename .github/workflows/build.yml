@@ -35,7 +35,7 @@ jobs:
     - name: Archive test results
       uses: actions/upload-artifact@v2
       with:
-        name: test-report
+        name: test-report-node${{ matrix.node-version }}
         path: jest-stare
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v1
