@@ -19,6 +19,9 @@ jobs:
       matrix:
         node-version: [14.15.x, 15.x]
 
+    env:
+      NODEJS: ${{ matrix.node-version }}
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -28,9 +31,15 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: | 
         npm ci
-        npm run coverage
+        npm run coverage:ci
     - name: Archive test results
       uses: actions/upload-artifact@v2
       with:
         name: test-report
         path: jest-stare
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        directory: ./coverage/
+        fail_ci_if_error: true
+        env_vars: NODEJS

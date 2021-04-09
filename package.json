@@ -11,7 +11,7 @@
     "build:deps": "copyfiles -f node_modules/@webcomponents/custom-elements/custom-elements.min.js dist/js",
     "build": "npm-run-all build:*",
     "clean": "rimraf dist",
-    "coverage": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --coverage",
+    "coverage:ci": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --ci --coverage",
     "lint": "eslint --ext .js,.mjs js/",
     "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js"
   },
