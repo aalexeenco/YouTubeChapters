@@ -6,7 +6,6 @@
 ![commits since latest release](https://img.shields.io/github/commits-since/aalexeenco/YouTubeChapters/latest)
 
 
-
 YouTubeChapters is a Chrome browser extension which adds chapter navigation controls to 
 the YouTube player.
 
