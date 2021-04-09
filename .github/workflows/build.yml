@@ -1,14 +1,17 @@
-name: tests
+name: build
 
 on:
   workflow_dispatch:
   push:
-    branches: [ $default-branch ]
+    paths:
+    - "**.js"
+    - "**.cjs"
+    - "**.mjs"
+    - "**.json"
   pull_request:
-    branches: [ $default-branch ]
 
 jobs:
-  test:
+  test_and_coverage:
 
     runs-on: ubuntu-latest
 
@@ -25,7 +28,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: | 
         npm ci
-        npm test
+        npm run coverage
     - name: Archive test results
       uses: actions/upload-artifact@v2
       with:
