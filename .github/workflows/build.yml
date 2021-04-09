@@ -1,20 +1,26 @@
-name: Node.js CI
+name: build
 
 on:
   workflow_dispatch:
   push:
-    branches: [ $default-branch ]
+    paths:
+    - "**.js"
+    - "**.cjs"
+    - "**.mjs"
+    - "**.json"
   pull_request:
-    branches: [ $default-branch ]
 
 jobs:
-  build_and_test:
+  test_and_coverage:
 
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
         node-version: [14.15.x, 15.x]
+
+    env:
+      NODEJS: ${{ matrix.node-version }}
 
     steps:
     - name: Checkout repository
@@ -23,10 +29,17 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm ci
-    - run: npm test
+    - run: | 
+        npm ci
+        npm run coverage:ci
     - name: Archive test results
       uses: actions/upload-artifact@v2
       with:
         name: test-report
         path: jest-stare
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        directory: ./coverage/
+        fail_ci_if_error: true
+        env_vars: NODEJS

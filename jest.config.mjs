@@ -11,7 +11,7 @@ export default {
     // bail: 0,
 
     // The directory where Jest should store its cached dependency information
-    // cacheDirectory: "C:\\Users\\Andrei\\AppData\\Local\\Temp\\jest",
+    // cacheDirectory: "C:\\Users\\<user>\\AppData\\Local\\Temp\\jest",
 
     // Automatically clear mock calls and instances between every test
     clearMocks: true,
@@ -23,7 +23,7 @@ export default {
     // collectCoverageFrom: undefined,
 
     // The directory where Jest should output its coverage files
-    // coverageDirectory: undefined,
+    coverageDirectory: "coverage",
 
     // An array of regexp pattern strings used to skip coverage collection
     // coveragePathIgnorePatterns: [
@@ -34,12 +34,10 @@ export default {
     coverageProvider: "v8",
 
     // A list of reporter names that Jest uses when writing coverage reports
-    // coverageReporters: [
-    //   "json",
-    //   "text",
-    //   "lcov",
-    //   "clover"
-    // ],
+    coverageReporters: [
+      "json",
+      "text",
+    ],
 
     // An object that configures minimum threshold enforcement for coverage results
     // coverageThreshold: undefined,
@@ -149,7 +147,7 @@ export default {
     // testLocationInResults: false,
 
     // The glob patterns Jest uses to detect test files
-    testMatch: ["**/__tests__/**/*.c[jt]s?(x)", "**/?(*.)+(spec|test).[tj]s?(x)"],
+    testMatch: ["**/__tests__/**/*.[jt]s?(x)", "**/?(*.)+(spec|test).[tj]s?(x)"],
 
     // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
     // testPathIgnorePatterns: [

@@ -1,4 +1,6 @@
-coverage
+build/
+coverage/
+dist/
 
 jest-stare/
 
