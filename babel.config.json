@@ -3,9 +3,11 @@
         "production": {
             "comments": false,
             "plugins": [
-                "@babel/plugin-syntax-class-properties",
                 "transform-remove-console"
             ]
         }
-    }
+    },
+    "plugins": [
+        "@babel/plugin-syntax-class-properties"
+    ]
 }

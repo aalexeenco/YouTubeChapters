@@ -17,6 +17,7 @@ jobs:
           node-version: 15
       - run: | 
           npm ci
+          npm run lint
           npm test
       - name: Build
         run: |

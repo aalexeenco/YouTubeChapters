@@ -31,6 +31,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: | 
         npm ci
+        npm run lint
         npm run coverage:ci
     - name: Archive test results
       uses: actions/upload-artifact@v2
