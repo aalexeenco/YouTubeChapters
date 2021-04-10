@@ -15,6 +15,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 15
+      - name: Lint and test
       - run: | 
           npm ci
           npm run lint
