@@ -1,4 +1,4 @@
-import { withChapterOverlay, YTPlayer } from "./../../js/modules/player.mjs";
+import { withChapterOverlay, YTPlayer } from "js/modules/player.mjs";
 import { screen } from "./../testing-library-dom.mjs";
 
 export const chapterTitleOverlay = () => document.querySelector(".ytp-chapter-title-overlay");

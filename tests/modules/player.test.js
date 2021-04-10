@@ -1,5 +1,5 @@
 import { jest } from "@jest/globals";
-import { YTPlayer } from "./../../js/modules/player.mjs";
+import { YTPlayer } from "js/modules/player.mjs";
 import { ytPlayerHtml } from "./../test-html.mjs";
 import { screen, waitFor } from "./../testing-library-dom.mjs";
 

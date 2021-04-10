@@ -53,17 +53,13 @@ npm test
 ## Built With
 
 * [@webcomponents/custom-elements](https://www.npmjs.com/package/@webcomponents/custom-elements) - A polyfill for the custom elements v1 spec
-* [Jest](https://jestjs.io/) - JavaScript Testing Framework
+* [Babel](https://babeljs.io/)
 * [ESLint](https://eslint.org)
+* [Jest](https://jestjs.io/) - JavaScript Testing Framework
 * [Prettier](https://prettier.io)
-* [copyfiles][1], [npm-run-all][2], [rimraf][3]
 * [VS Code](https://code.visualstudio.com/)
 * [Git Release](https://github.com/marketplace/actions/git-release) -
 A GitHub Action for creating a GitHub Release with Assets and Changelog
 
 ## License
 [MIT](./LICENSE)
-
-[1]: https://www.npmjs.com/package/copyfiles
-[2]: https://www.npmjs.com/package/npm-run-all
-[3]: https://www.npmjs.com/package/rimraf

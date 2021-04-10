@@ -1,5 +1,5 @@
 import { jest } from "@jest/globals";
-import { YTChapterList } from "./../../js/modules/chapters.mjs";
+import { YTChapterList } from "js/modules/chapters.mjs";
 import { expectTimeout } from "./../test-utils.mjs";
 import { screen, waitFor } from "./../testing-library-dom.mjs";
 import {

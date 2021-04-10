@@ -1,4 +1,4 @@
-import { parseChapters } from "./../../js/modules/chapters.mjs";
+import { parseChapters } from "js/modules/chapters.mjs";
 import { ytDescriptionChapterLinkHtml } from "./../test-html.mjs";
 import { within } from "./../testing-library-dom.mjs";
 

@@ -1,5 +1,5 @@
 import { jest } from "@jest/globals";
-import { withChapterNavigation, YTPlayer } from "./../../js/modules/player.mjs";
+import { withChapterNavigation, YTPlayer } from "js/modules/player.mjs";
 import { changeChapterTitle } from "../test-dsl.mjs";
 import * as html from "../test-html.mjs";
 import {

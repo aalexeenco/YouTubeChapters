@@ -1,4 +1,4 @@
-import YTPlayerChapterOverlayElement from "./../../js/modules/chapter-overlay.mjs";
+import YTPlayerChapterOverlayElement from "js/modules/chapter-overlay.mjs";
 
 test("Chapter overlay element contains empty overlay container when chapter title is not set", () => {
     const element = new YTPlayerChapterOverlayElement();
