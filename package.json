@@ -20,7 +20,7 @@
     "@testing-library/dom": "^8.6.0",
     "@testing-library/jest-dom": "^5.14.1",
     "babel-plugin-transform-remove-console": "^6.9.4",
-    "eslint": "^7.24.0",
+    "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "jest": "^26.6.1",
     "jest-chrome": "^0.7.2",
