@@ -16,7 +16,7 @@
   "devDependencies": {
     "@babel/cli": "^7.15.7",
     "@babel/core": "^7.15.5",
-    "@babel/eslint-parser": "^7.13.14",
+    "@babel/eslint-parser": "^7.15.7",
     "@testing-library/dom": "^8.6.0",
     "@testing-library/jest-dom": "^5.14.1",
     "babel-plugin-transform-remove-console": "^6.9.4",
