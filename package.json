@@ -28,6 +28,6 @@
     "prettier": "^2.1.2"
   },
   "dependencies": {
-    "@webcomponents/custom-elements": "^1.4.3"
+    "@webcomponents/custom-elements": "^1.5.0"
   }
 }
