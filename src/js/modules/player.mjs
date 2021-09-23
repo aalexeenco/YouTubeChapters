@@ -207,6 +207,6 @@ export class YTMainPlayer extends withChapterNavigation(
     YTChapterList
 ) {
     constructor() {
-        super("movie_player", "description");
+        super("movie_player", "meta-contents");
     }
 }
