@@ -1,6 +1,6 @@
 {
     "name": "Chapters Navigation for YouTube",
-    "version": "1.0",
+    "version": "1.1",
     "description": "Navigate YouTube video chapters using Next/Previous buttons and keyboard shortcuts.",
     "manifest_version": 2,
     "icons": { 
