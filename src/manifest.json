@@ -29,13 +29,13 @@
     "commands": {
       "next-chapter": {
         "suggested_key": {
-            "default": "Ctrl+Right"
+            "default": "Ctrl+Period"
         },
         "description": "Next chapter"
       },
       "prev-chapter": {
         "suggested_key": {
-            "default": "Ctrl+Left"
+            "default": "Ctrl+Comma"
         },
         "description": "Previous chapter"
       }     
