@@ -13,6 +13,12 @@ import {
 
 const CHAPTERS_CONTAINER_ID = "container-id";
 const CHAPTERS_CONTAINER_TEST_ID = "container-test-id";
+const CHAPTERS_CONTAINER_PARAMS = { 
+    tagName: "chapters",
+    attrName: "test-attr",
+    attrValue: "test",
+    containerId: CHAPTERS_CONTAINER_ID
+ };
 
 describe("YTChapterList unit tests", () => {
     let parseChaptersSpy = jest.spyOn(YTChapterList, YTChapterList.parseChapters.name);
@@ -26,7 +32,7 @@ describe("YTChapterList unit tests", () => {
     beforeEach(() => {
         document.body.innerHTML = "<div></div>";
         parseChaptersSpy.mockReturnValue([]);
-        chapterList = new YTChapterList(CHAPTERS_CONTAINER_ID, callbackMock);
+        chapterList = new YTChapterList(CHAPTERS_CONTAINER_PARAMS, callbackMock);
     });
 
     afterEach(() => {
@@ -80,9 +86,12 @@ describe("YTChapterList unit tests", () => {
                     parseChaptersSpy.mockReturnValue(parsedChapters);
                     document.body.insertAdjacentHTML(
                         "afterbegin",
-                        `<div id="${CHAPTERS_CONTAINER_ID}" data-testid="${CHAPTERS_CONTAINER_TEST_ID}">
-                        Content is irrelevant in test because chapters parsing is mocked!
-                        </div>
+                        `<${CHAPTERS_CONTAINER_PARAMS.tagName} 
+                            ${CHAPTERS_CONTAINER_PARAMS.attrName}="${CHAPTERS_CONTAINER_PARAMS.attrValue}">
+                            <div id="${CHAPTERS_CONTAINER_ID}" data-testid="${CHAPTERS_CONTAINER_TEST_ID}">
+                            Content is irrelevant in test because chapters parsing is mocked!
+                            </div>
+                        </${CHAPTERS_CONTAINER_PARAMS.tagName}>
                         `
                     );
                     await chapterListInitialization;
@@ -138,9 +147,12 @@ describe("YTChapterList unit tests", () => {
         beforeEach(() => {
             document.body.insertAdjacentHTML(
                 "afterbegin",
-                `<div id="${CHAPTERS_CONTAINER_ID}" data-testid="${CHAPTERS_CONTAINER_TEST_ID}">
-                Content is irrelevant in test because chapters parsing is mocked!
-                </div>
+                `<${CHAPTERS_CONTAINER_PARAMS.tagName}
+                    ${CHAPTERS_CONTAINER_PARAMS.attrName}="${CHAPTERS_CONTAINER_PARAMS.attrValue}">
+                    <div id="${CHAPTERS_CONTAINER_ID}" data-testid="${CHAPTERS_CONTAINER_TEST_ID}">
+                        Content is irrelevant in test because chapters parsing is mocked!
+                    </div>
+                </${CHAPTERS_CONTAINER_PARAMS.tagName}>
                 `
             );
         });
