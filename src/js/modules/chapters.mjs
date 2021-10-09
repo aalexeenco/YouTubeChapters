@@ -1,40 +1,59 @@
 import { nodeAddedAsync } from "./utils.mjs";
 
 export class YTChapterList {
-    #containerId;
+    #containerParams;
+    #containerElementQuerySelector;
     #chapters = [];
 
     onChapterListChanged;
 
-    constructor(containerId, onChapterListChanged) {
-        this.#containerId = containerId;
+    constructor(containerParams, onChapterListChanged) {
+        this.#containerParams = containerParams
         this.onChapterListChanged = onChapterListChanged;
+
+        this.#containerElementQuerySelector = `${this.#containerParams.tagName}`;
+        if (this.#containerParams.attrName) {
+            // prettier-ignore
+            this.#containerElementQuerySelector += `[${this.#containerParams.attrName}='${this.#containerParams.attrValue}']`;
+        }
+        this.#containerElementQuerySelector += ` #${this.#containerParams.containerId}`;
     }
 
     #setChapters(chapters) {
-        this.#chapters = chapters;
-        this.onChapterListChanged?.();
+        console.debug(`${YTChapterList.name}: ${this.#containerElementQuerySelector} | set chapters`);
+        console.debug(chapters);
+        if (chapters.length > 0 || this.#chapters.length > 0) {
+            this.#chapters = chapters;
+            this.onChapterListChanged?.();
+        }
     }
 
     get containerElement() {
-        return document.getElementById(this.#containerId);
+        return document.querySelector(this.#containerElementQuerySelector);
     }
 
     async initAsync() {
-        console.log(`${YTChapterList.name}: #${this.#containerId} | initializing...`);
+        console.log(`${YTChapterList.name}: ${this.#containerElementQuerySelector} | initializing...`);
         let container = this.containerElement;
         if (!container) {
             // prettier-ignore
-            console.debug(`${YTChapterList.name}: #${this.#containerId} | start observing for chapters container node...`);
-            await nodeAddedAsync(document, (node) => node.id === this.#containerId);
+            console.debug(`${YTChapterList.name}: ${this.#containerElementQuerySelector} | start observing for the container node...`);
+            const tagName = this.#containerParams.tagName.toUpperCase();
+            const attrName = this.#containerParams.attrName;
+            const attrValue = this.#containerParams.attrValue;
+            await nodeAddedAsync(
+                document, 
+                (node) => node.tagName === tagName && (!attrName || node.attributes[attrName].value === attrValue)
+            );
             container = this.containerElement;
+            console.debug(`${YTChapterList.name}: ${this.#containerElementQuerySelector} | container node added`);
         }
         this.#setChapters(YTChapterList.parseChapters(container));
         const chaptersParsingObserver = new MutationObserver(() => {
             this.#setChapters(YTChapterList.parseChapters(this.containerElement));
         });
         chaptersParsingObserver.observe(container, { childList: true, subtree: true });
-        console.log(`${YTChapterList.name}: #${this.#containerId} | initialized`);
+        console.log(`${YTChapterList.name}: ${this.#containerElementQuerySelector} | initialized`);
     }
 
     findIndexByVideoTime(videoTime) {
@@ -58,7 +77,6 @@ export class YTChapterList {
 }
 
 export function parseChapters(container) {
-    console.debug("Parsing chapters...");
     const extraParamStartIndex = document.baseURI.indexOf("&");
     const videoURI =
         extraParamStartIndex > -1
@@ -76,8 +94,6 @@ export function parseChapters(container) {
             chapters.splice(0, firstChapterLinkIndex);
         }
     }
-    console.debug("Parsed chapters");
-    console.debug(chapters);
 
     return chapters;
 }

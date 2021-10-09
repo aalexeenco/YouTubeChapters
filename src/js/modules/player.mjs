@@ -20,7 +20,9 @@ export class YTPlayer {
     async initAsync() {
         console.debug("%s: #%s | initializing...", YTPlayer.name, this.#id);
         if (!this.element) {
+            console.debug("%s: #%s | start observing for the node...", YTPlayer.name, this.#id);
             await nodeAddedAsync(document, (n) => n.id === this.#id);
+            console.debug("%s: #%s | node added", YTPlayer.name, this.#id);
         }
         const observer = new MutationObserver((mutations) => this.onChapterChanged(mutations));
         observer.observe(this.chapterTitleElement, { childList: true });
@@ -58,9 +60,9 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
         #chapters;
         #onRuntimeMessageCallback;
 
-        constructor(playerId, chapterContainerId) {
+        constructor(playerId, chapterContainerParams) {
             super(playerId);
-            this.#chapters = new ChapterList(chapterContainerId, () =>
+            this.#chapters = new ChapterList(chapterContainerParams, () =>
                 this.invalidateChapterControls()
             );
         }
@@ -102,7 +104,7 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
         }
 
         addChapterControls() {
-            console.debug("%s: add chapter controls", withChapterNavigation.name);
+            console.debug("%s: %s | add chapter controls", withChapterNavigation.name, this.element.id);
             const chapterTitleContainer = this.chapterTitleElement.closest(
                 ".ytp-chapter-container"
             );
@@ -148,7 +150,7 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
         }
 
         removeChapterControls() {
-            console.debug("%s: Remove chapter controls", withChapterNavigation.name);
+            console.debug("%s: %s | remove chapter controls", withChapterNavigation.name, this.element.id);
             this.element
                 .querySelectorAll("button.ytp-chapter-button")
                 .forEach((btn) => btn.remove());
@@ -158,6 +160,7 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
 
         onChapterControlButtonClick(button) {
             const navigationDirection = button.attributes["data-controltype"].value;
+            console.debug("%s: #%s | button(%s) clicked", withChapterNavigation.name, this.element.id, navigationDirection);
             this.navigateToChapter(navigationDirection);
         }
 
@@ -178,18 +181,22 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
         }
 
         invalidateChapterControls() {
-            console.debug("%s: invalidate chapter controls", withChapterNavigation.name);
+            console.debug("%s: #%s | invalidating chapter controls...", withChapterNavigation.name, this.element.id);
             const prevButton = this.element.querySelector(".ytp-chapter-button-prev");
             if (prevButton) {
                 prevButton.disabled = !this.prevChapterLink;
+                console.debug("%s: #%s | prev=%s", withChapterNavigation.name, this.element.id, !prevButton.disabled);
             }
             const nextButton = this.element.querySelector(".ytp-chapter-button-next");
             if (nextButton) {
                 nextButton.disabled = !this.nextChapterLink;
+                console.debug("%s: #%s | next=%s", withChapterNavigation.name, this.element.id, !nextButton.disabled);
             }
+            console.debug("%s: #%s | invalidated chapter controls", withChapterNavigation.name, this.element.id);
         }
 
         onRuntimeMessage(request) {
+            console.debug("%s: #%s | runtime msg(%s)", withChapterNavigation.name, this.element.id, request.navigationDirection);
             if (this.videoElement.clientHeight > 0) {
                 this.navigateToChapter(request.navigationDirection);
             }
@@ -202,11 +209,8 @@ export class YTChannelPlayer extends withChapterOverlay(YTPlayer) {
     }
 }
 
-export class YTMainPlayer extends withChapterNavigation(
-    withChapterOverlay(YTPlayer),
-    YTChapterList
-) {
+export class YTMainPlayer extends withChapterNavigation(withChapterOverlay(YTPlayer), YTChapterList) {
     constructor() {
-        super("movie_player", "meta-contents");
+        super("movie_player", { tagName: "ytd-watch-flexy", containerId: "meta-contents" });
     }
 }
