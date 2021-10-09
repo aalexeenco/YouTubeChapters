@@ -1,7 +1,7 @@
 {
     "name": "Chapters Navigation for YouTube",
-    "version": "1.1",
-    "description": "Navigate YouTube video chapters using Next/Previous buttons and keyboard shortcuts.",
+    "version": "1.2",
+    "description": "Allows to navigate YouTube video chapters using in-player widgets and shows chapter titles as overlays.",
     "manifest_version": 2,
     "icons": { 
       "16": "images/icon16.png",
@@ -38,6 +38,6 @@
             "default": "Ctrl+Comma"
         },
         "description": "Previous chapter"
-      }     
+      }
     }
   }
