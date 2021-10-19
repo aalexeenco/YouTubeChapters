@@ -82,7 +82,7 @@ export function parseChapters(container) {
         extraParamStartIndex > -1
             ? document.baseURI.substring(0, extraParamStartIndex)
             : document.baseURI;
-    const chapters = [...container.querySelectorAll("a.yt-simple-endpoint.yt-formatted-string")]
+    const chapters = [...container.querySelectorAll("a.yt-simple-endpoint.ytd-macro-markers-list-item-renderer")]
         .filter((a) => a.href.indexOf(videoURI) > -1 && a.href.indexOf("&t=") > -1)
         .map((a) => {
             const chapterStartTime = parseInt(a.href.substring(a.href.indexOf("&t=") + 3));

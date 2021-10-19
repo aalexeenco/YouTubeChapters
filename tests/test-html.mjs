@@ -6,8 +6,16 @@ export const ytDescriptionChapterLinkHtml = (
     chapterTitle,
     videoPageUri = VideoPageURI
 ) => `
-<a href="${videoPageUri}&t=${t}s" class="yt-simple-endpoint yt-formatted-string">${formattedTime}</a>
-<span class="style-scope yt-formatted-string"> ${chapterTitle}</span>
+<a id="endpoint" href="${videoPageUri}&t=${t}s" class="yt-simple-endpoint ytd-macro-markers-list-item-renderer">
+    <div id="details" class="style-scope ytd-macro-markers-list-item-renderer">
+        <h4 class="style-scope ytd-macro-markers-list-item-renderer">
+            ${chapterTitle}
+        </h4>
+        <div id="time" class="style-scope ytd-macro-markers-list-item-renderer">
+            ${formattedTime}
+        </div>
+    </div>
+</a>
 `;
 
 export const ytPlayerHtml = ({ playerId, chapterTitle, testId }) => `
