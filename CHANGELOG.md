@@ -1,3 +1,7 @@
+## [2.0.0] - 2021-10-19
+### Changed
+- Chapter links are parsed from specialized chapters panel now ([50])
+
 ## [1.2.0] - 2021-10-09
 ### Changed
 - New default keyboard shortcut bindings ([47])
@@ -24,3 +28,4 @@
 [37]: https://github.com/aalexeenco/YouTubeChapters/pull/37
 [46]: https://github.com/aalexeenco/YouTubeChapters/pull/46
 [47]: https://github.com/aalexeenco/YouTubeChapters/issues/47
+[50]: https://github.com/aalexeenco/YouTubeChapters/pull/50
