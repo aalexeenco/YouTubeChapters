@@ -211,6 +211,6 @@ export class YTChannelPlayer extends withChapterOverlay(YTPlayer) {
 
 export class YTMainPlayer extends withChapterNavigation(withChapterOverlay(YTPlayer), YTChapterList) {
     constructor() {
-        super("movie_player", { tagName: "ytd-watch-flexy", containerId: "columns" });
+        super("movie_player", { tagName: "ytd-watch-flexy", containerId: "panels" });
     }
 }
