@@ -24,6 +24,7 @@
 [1.0.0]: https://github.com/aalexeenco/YouTubeChapters/releases/tag/v1.0.0
 [1.1.0]: https://github.com/aalexeenco/YouTubeChapters/releases/tag/v1.1.0
 [1.2.0]: https://github.com/aalexeenco/YouTubeChapters/releases/tag/v1.2.0
+[2.0.0]: https://github.com/aalexeenco/YouTubeChapters/releases/tag/v2.0.0
 
 [37]: https://github.com/aalexeenco/YouTubeChapters/pull/37
 [46]: https://github.com/aalexeenco/YouTubeChapters/pull/46
