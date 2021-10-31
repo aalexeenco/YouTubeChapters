@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "babel --delete-dir-on-start --keep-file-extension --env-name production -D --out-dir ./dist src",
+    "build:dev": "npm run build -- --env-name dev",
     "postbuild": "babel -D --ignore node_modules --out-dir ./dist/js ./node_modules/@webcomponents/custom-elements/custom-elements.min.js",
     "coverage:ci": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --ci --coverage",
     "lint": "eslint --ext .js,.mjs ./src/js/",
