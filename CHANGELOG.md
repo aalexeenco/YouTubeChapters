@@ -1,3 +1,9 @@
+## [2.1.0] - 2021-11-01
+### Changed
+- Changed overlay element to be a wrapper rather than a custom element ([53])
+### Fixed
+- Optimized chapter links parsing by monitoring nearest parent node ([52])
+
 ## [2.0.0] - 2021-10-19
 ### Changed
 - Chapter links are parsed from specialized chapters panel now ([50])
@@ -25,8 +31,11 @@
 [1.1.0]: https://github.com/aalexeenco/YouTubeChapters/releases/tag/v1.1.0
 [1.2.0]: https://github.com/aalexeenco/YouTubeChapters/releases/tag/v1.2.0
 [2.0.0]: https://github.com/aalexeenco/YouTubeChapters/releases/tag/v2.0.0
+[2.1.0]: https://github.com/aalexeenco/YouTubeChapters/releases/tag/v2.1.0
 
 [37]: https://github.com/aalexeenco/YouTubeChapters/pull/37
 [46]: https://github.com/aalexeenco/YouTubeChapters/pull/46
 [47]: https://github.com/aalexeenco/YouTubeChapters/issues/47
 [50]: https://github.com/aalexeenco/YouTubeChapters/pull/50
+[52]: https://github.com/aalexeenco/YouTubeChapters/issues/52
+[53]: https://github.com/aalexeenco/YouTubeChapters/issues/53

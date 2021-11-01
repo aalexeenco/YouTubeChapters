@@ -47,7 +47,7 @@ jobs:
           cp LICENSE ./dist/
           mkdir release
           cd dist
-          zip -r ../release/yt_chapters_ext_$TAG_VERSION.zip ./*
+          zip -r ../release/yt_chapters_ext.zip ./*
       - name: Create Release and upload assets
         uses: docker://antonyurchenko/git-release:latest
         env:
