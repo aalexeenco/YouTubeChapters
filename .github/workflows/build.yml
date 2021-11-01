@@ -12,13 +12,10 @@ on:
 
 jobs:
   test_and_coverage:
-
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         node-version: [14.15.x, 16.x]
-
     env:
       NODEJS: ${{ matrix.node-version }}
 
