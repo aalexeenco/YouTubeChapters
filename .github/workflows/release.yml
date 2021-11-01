@@ -22,11 +22,11 @@ jobs:
           npm test
       - name: Build
         run: |
-          npm run build
+          npm run build:production
           cp LICENSE ./dist/
           mkdir release
           cd dist
-          zip -r ../release/yt_chapters_chrome_ext.zip ./*
+          zip -r ../release/yt_chapters_ext.zip ./*
       - name: Create Release and upload assets
         uses: docker://antonyurchenko/git-release:latest
         env:
