@@ -7,7 +7,6 @@
   "scripts": {
     "build": "babel --delete-dir-on-start --keep-file-extension --env-name production -D --out-dir ./dist src",
     "build:dev": "npm run build -- --env-name dev",
-    "postbuild": "babel -D --ignore node_modules --out-dir ./dist/js ./node_modules/@webcomponents/custom-elements/custom-elements.min.js",
     "coverage:ci": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --ci --coverage",
     "lint": "eslint --ext .js,.mjs ./src/js/",
     "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js"
@@ -27,8 +26,5 @@
     "jest-chrome": "^0.7.2",
     "jest-stare": "^2.3.0",
     "prettier": "^2.4.1"
-  },
-  "dependencies": {
-    "@webcomponents/custom-elements": "^1.5.0"
   }
 }

@@ -18,7 +18,6 @@
         "matches": ["*://*.youtube.com/*"],
         "css": ["css/content.css"],
         "js": [
-          "js/custom-elements.min.js",
           "js/content.js"
         ]
       }

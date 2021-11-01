@@ -1,8 +1,8 @@
 import { withChapterOverlay, YTPlayer } from "js/modules/player.mjs";
 import { screen } from "./../testing-library-dom.mjs";
 
-export const chapterTitleOverlay = () => document.querySelector(".ytp-chapter-title-overlay");
-export const chapterTitleOverlayWithRevealEffectAndText = (chapterTitleText) =>
+const chapterTitleOverlay = () => document.querySelector(".ytp-chapter-title-overlay");
+const chapterTitleOverlayWithRevealEffectAndText = (chapterTitleText) =>
     screen.queryByText(chapterTitleText, {
         selector: ".ytp-chapter-title-overlay.ytp-overlay-reveal",
     });
@@ -25,6 +25,19 @@ describe("Chapter overlay mixin tests", () => {
         player = new TestPlayer("foo");
     });
 
+    test("Given empty chapter title, then overlay is not displayed on init", async () => {
+        await player.initAsync();
+
+        expect(chapterTitleOverlay()).not.toBeInTheDocument();
+    });
+
+    test("Given non-empty chapter title, then overlay is displayed on init", async () => {
+        player.chapterTitleElement.textContent = "New Chapter";
+        await player.initAsync();
+
+        expect(player.element).toContainElement(chapterTitleOverlay());
+    });
+
     describe("Chapter title is changed to a non-empty value", () => {
         beforeEach(() => {
             player.chapterTitleElement.textContent = "Hello, World!";
@@ -32,12 +45,12 @@ describe("Chapter overlay mixin tests", () => {
         });
 
         test("Chapter overlay is added to the player", () => {
-            expect(player.chapterOverlayElement).toBeDefined();
-            expect(player.element).toContainElement(player.chapterOverlayElement);
+            expect(chapterTitleOverlay()).toBeDefined();
+            expect(player.element).toContainElement(chapterTitleOverlay());
         });
 
         test("Chapter title is revealed", () => {
-            expect(player.chapterOverlayElement).toContainElement(
+            expect(chapterTitleOverlay()).toContainElement(
                 chapterTitleOverlayWithRevealEffectAndText(player.chapterTitleElement.textContent)
             );
         });
@@ -48,7 +61,7 @@ describe("Chapter overlay mixin tests", () => {
 
             player.onChapterChanged();
 
-            expect(player.chapterOverlayElement).toContainElement(
+            expect(player.element).toContainElement(
                 chapterTitleOverlayWithRevealEffectAndText(newChapterTitleText)
             );
         });
@@ -58,7 +71,7 @@ describe("Chapter overlay mixin tests", () => {
 
             player.onChapterChanged();
 
-            expect(player.chapterOverlayElement).not.toBeInTheDocument();
+            expect(chapterTitleOverlay()).not.toBeInTheDocument();
         });
     });
 });
