@@ -39,10 +39,8 @@ jobs:
           npm run lint
           npm test
       - name: Build and pack
-        env:
-          TAG_VERSION: ${{ steps.get-tag.outputs.result }}
         run: |
-          npm version $TAG_VERSION
+          npm version --no-git-tag-version from-git
           npm run build:production
           cp LICENSE ./dist/
           mkdir release
