@@ -1,6 +1,16 @@
-export default class YTPlayerChapterOverlayElement extends HTMLElement {
+export class YTPlayerChapterOverlay {
+    #root;
+
+    get element() {
+        return this.#root;
+    }
+
     constructor() {
-        super();
+        this.#root = document.createElement("div");
+        this.#root.setAttribute(
+            "class",
+            "ytp-chapter-overlay"
+        );
 
         const overlayContainer = document.createElement("div");
         overlayContainer.setAttribute(
@@ -8,11 +18,11 @@ export default class YTPlayerChapterOverlayElement extends HTMLElement {
             "ytp-player-content ytp-chapter-title-overlay-container"
         );
 
-        this.appendChild(overlayContainer);
+        this.element.appendChild(overlayContainer);
     }
 
     set chapterTitle(chapterTitleText) {
-        const overlayContainer = this.firstChild;
+        const overlayContainer = this.element.firstChild;
         overlayContainer.firstChild?.remove();
 
         if (chapterTitleText) {
@@ -24,5 +34,3 @@ export default class YTPlayerChapterOverlayElement extends HTMLElement {
         }
     }
 }
-
-customElements.define("ytp-chapter-overlay", YTPlayerChapterOverlayElement);

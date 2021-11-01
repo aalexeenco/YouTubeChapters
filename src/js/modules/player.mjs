@@ -1,4 +1,4 @@
-import YTPlayerChapterTitleOverlayElement from "./chapter-overlay.mjs";
+import { YTPlayerChapterOverlay } from "./chapter-overlay.mjs";
 import { YTChapterList } from "./chapters.mjs";
 import { nodeAddedAsync } from "./utils.mjs";
 
@@ -34,24 +34,35 @@ export class YTPlayer {
 
 export const withChapterOverlay = (YTPlayer) =>
     class extends YTPlayer {
-        get chapterOverlayElement() {
-            return this.element?.querySelector("ytp-chapter-overlay");
+        async initAsync() {
+            await super.initAsync();
+            console.debug("%s: #%s | initializing...", withChapterOverlay.name, this.element?.id);
+            const titleText = this.chapterTitleElement.textContent;
+            if (titleText) {
+                this.displayOverlay(titleText);
+            }
+            console.debug("%s: #%s | initialized", withChapterOverlay.name, this.element?.id);
+        }
+
+        displayOverlay(chapterTitleText) {
+            console.debug("%s: #%s | display overlay '%s'", withChapterOverlay.name, this.element?.id, chapterTitleText);
+            if (!this.overlay) {
+                this.overlay = new YTPlayerChapterOverlay();
+                this.element.appendChild(this.overlay.element);
+            }
+
+            this.overlay.chapterTitle = chapterTitleText;
         }
 
         onChapterChanged() {
             const titleText = this.chapterTitleElement.textContent;
-            let overlay = this.chapterOverlayElement;
-            if (titleText === "") {
-                overlay?.remove();
-                return;
+            console.debug("%s: #%s | chapter changed '%s'", withChapterOverlay.name, this.element?.id, titleText);
+            if (titleText) {
+                this.displayOverlay(titleText);
+            } else {
+                this.overlay?.element.remove();
+                this.overlay = null;
             }
-
-            if (!overlay) {
-                overlay = new YTPlayerChapterTitleOverlayElement();
-                this.element.appendChild(overlay);
-            }
-
-            overlay.chapterTitle = titleText;
         }
     };
 
@@ -69,10 +80,12 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
 
         async initAsync() {
             await super.initAsync();
+            console.debug("%s: #%s | initializing...", withChapterNavigation.name, this.element?.id);
             if (this.chapterTitleElement.textContent) {
                 this.addChapterControls();
             }
             this.#chapters.initAsync();
+            console.debug("%s: #%s | initialized", withChapterNavigation.name, this.element?.id);
         }
 
         get videoElement() {
@@ -81,13 +94,14 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
 
         onChapterChanged(mutations) {
             super.onChapterChanged(mutations);
+            console.debug("%s: #%s | chapter changed", withChapterNavigation.name, this.element?.id);
             if (this.chapterTitleElement.textContent === "") {
                 this.removeChapterControls();
                 return;
             }
 
             if (
-                mutations.length === 1 ||
+                mutations.length <= 1 ||
                 (mutations[0].removedNodes[0] ?? mutations[1].removedNodes[0]).textContent === ""
             ) {
                 this.addChapterControls();
@@ -104,7 +118,7 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
         }
 
         addChapterControls() {
-            console.debug("%s: %s | add chapter controls", withChapterNavigation.name, this.element.id);
+            console.debug("%s: #%s | add chapter controls", withChapterNavigation.name, this.element.id);
             const chapterTitleContainer = this.chapterTitleElement.closest(
                 ".ytp-chapter-container"
             );
@@ -150,7 +164,7 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
         }
 
         removeChapterControls() {
-            console.debug("%s: %s | remove chapter controls", withChapterNavigation.name, this.element.id);
+            console.debug("%s: #%s | remove chapter controls", withChapterNavigation.name, this.element.id);
             this.element
                 .querySelectorAll("button.ytp-chapter-button")
                 .forEach((btn) => btn.remove());
@@ -211,6 +225,6 @@ export class YTChannelPlayer extends withChapterOverlay(YTPlayer) {
 
 export class YTMainPlayer extends withChapterNavigation(withChapterOverlay(YTPlayer), YTChapterList) {
     constructor() {
-        super("movie_player", { tagName: "ytd-watch-flexy", containerId: "columns" });
+        super("movie_player", { tagName: "ytd-watch-flexy", containerId: "panels" });
     }
 }

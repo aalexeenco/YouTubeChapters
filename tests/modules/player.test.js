@@ -20,7 +20,7 @@ describe("YTPlayer unit and chapter changed callback tests", () => {
         beforeEach(async () => {
             document.body.innerHTML = `
             <div>
-                ${ytPlayerHtml({ playerId: PLAYER_ID, chapterTitle: "", testId: PLAYER_TEST_ID })}
+                ${ytPlayerHtml({ playerId: PLAYER_ID, chapterTitle: "Chapter", testId: PLAYER_TEST_ID })}
             </div>
             `;
             await player.initAsync();
@@ -37,16 +37,17 @@ describe("YTPlayer unit and chapter changed callback tests", () => {
             expect(player.element).toContainElement(player.chapterTitleElement);
         });
 
-        test("Chapter title element is empty", () => {
-            expect(player.chapterTitleElement).toBeEmptyDOMElement();
+        test("Chapter title element is not empty", () => {
+            expect(player.chapterTitleElement).not.toBeEmptyDOMElement();
         });
 
-        test("Chapter changed callback is not called on init", () => {
+        test("Chapter changed callback has not been called on init", () => {
             expect(onChapterChangedSpy).not.toHaveBeenCalled();
         });
 
-        describe("Chapter title is set afterwards", () => {
+        describe("Chapter title is changed afterwards", () => {
             beforeEach(() => {
+                onChapterChangedSpy.mockClear();
                 player.chapterTitleElement.textContent = "Hello, World!";
             });
 
@@ -82,7 +83,7 @@ describe("YTPlayer unit and chapter changed callback tests", () => {
             expect(player.chapterTitleElement).toBeUndefined();
         });
 
-        test("Chapter changed callback is not called on init", () => {
+        test("Chapter changed callback has not been called on init", () => {
             expect(onChapterChangedSpy).not.toHaveBeenCalled();
         });
 
