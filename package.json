@@ -1,12 +1,13 @@
 {
   "name": "youtubechapters-navigation",
-  "version": "2.0.0",
+  "version": "0.0.0",
   "description": "",
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "babel --delete-dir-on-start --keep-file-extension --env-name production -D --out-dir ./dist src",
-    "build:dev": "npm run build -- --env-name dev",
+    "build": "babel --delete-dir-on-start --keep-file-extension -D --out-dir ./dist src",
+    "postbuild": "cross-var yvar ./dist/manifest.json ./dist/manifest.json --VERSION $npm_package_version",
+    "build:production": "npm run build -- --env-name production",
     "coverage:ci": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --ci --coverage",
     "lint": "eslint --ext .js,.mjs ./src/js/",
     "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js"
@@ -20,11 +21,13 @@
     "@testing-library/dom": "^8.10.1",
     "@testing-library/jest-dom": "^5.14.1",
     "babel-plugin-transform-remove-console": "^6.9.4",
+    "cross-var": "^1.1.0",
     "eslint": "^8.1.0",
     "eslint-config-prettier": "^8.3.0",
     "jest": "^27.3.1",
     "jest-chrome": "^0.7.2",
     "jest-stare": "^2.3.0",
-    "prettier": "^2.4.1"
+    "prettier": "^2.4.1",
+    "yvar": "^0.1.3"
   }
 }
