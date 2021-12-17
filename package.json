@@ -19,7 +19,7 @@
     "@babel/core": "^7.16.5",
     "@babel/eslint-parser": "^7.16.5",
     "@testing-library/dom": "^8.11.1",
-    "@testing-library/jest-dom": "^5.14.1",
+    "@testing-library/jest-dom": "^5.16.1",
     "babel-plugin-transform-remove-console": "^6.9.4",
     "cross-var": "^1.1.0",
     "eslint": "^8.4.1",
