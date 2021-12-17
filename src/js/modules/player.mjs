@@ -100,20 +100,22 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
                 return;
             }
 
-            if (
+            const chapterTitleAdded = 
                 mutations.length <= 1 ||
-                (mutations[0].removedNodes[0] ?? mutations[1].removedNodes[0]).textContent === ""
-            ) {
+                (mutations[0].removedNodes[0] ?? mutations[1].removedNodes[0]).textContent === "";
+            if (chapterTitleAdded) {
                 this.addChapterControls();
             }
 
             const playerVideo = this.videoElement;
-            if (playerVideo.paused) {
-                playerVideo.addEventListener("seeked", () => this.invalidateChapterControls(), {
-                    once: true,
-                });
-            } else {
+            if (chapterTitleAdded || !playerVideo.paused) {
                 this.invalidateChapterControls();
+            } else {
+                playerVideo.addEventListener(
+                    "seeked",
+                    () => this.invalidateChapterControls(),
+                    { once: true }
+                );
             }
         }
 
