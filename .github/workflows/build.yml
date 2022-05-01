@@ -31,7 +31,7 @@ jobs:
         npm run lint
         npm run coverage:ci
     - name: Archive test results
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: test-report-node${{ matrix.node-version }}
         path: jest-stare
