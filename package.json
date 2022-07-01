@@ -18,7 +18,7 @@
     "@babel/cli": "^7.16.0",
     "@babel/core": "^7.16.5",
     "@babel/eslint-parser": "^7.16.5",
-    "@testing-library/dom": "^8.11.1",
+    "@testing-library/dom": "^8.14.0",
     "@testing-library/jest-dom": "^5.16.1",
     "babel-plugin-transform-remove-console": "^6.9.4",
     "cross-var": "^1.1.0",
