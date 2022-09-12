@@ -23,11 +23,11 @@
     "babel-plugin-transform-remove-console": "^6.9.4",
     "cross-var": "^1.1.0",
     "eslint": "^8.23.1",
-    "eslint-config-prettier": "^8.3.0",
+    "eslint-config-prettier": "^8.5.0",
     "jest": "^27.4.5",
     "jest-chrome": "^0.7.2",
     "jest-stare": "^2.4.1",
-    "prettier": "^2.5.1",
+    "prettier": "^2.7.1",
     "yvar": "^0.1.3"
   }
 }
