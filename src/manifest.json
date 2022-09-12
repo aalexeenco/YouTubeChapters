@@ -2,28 +2,28 @@
     "name": "Chapters Navigation for YouTube",
     "version": "$_{ VERSION }",
     "description": "Allows to navigate YouTube video chapters using in-player widgets and shows chapter titles as overlays.",
-    "manifest_version": 2,
+    "manifest_version": 3,
     "icons": { 
       "16": "images/icon16.png",
       "48": "images/icon48.png",
       "128": "images/icon128.png" 
     },
-    "permissions": ["*://*.youtube.com/*"],
+    "host_permissions": ["*://*.youtube.com/*"],
     "background": {
-      "scripts": ["js/background.js"],
-      "persistent": false
+      "service_worker": "background.js"
     },
     "content_scripts": [
       {
         "matches": ["*://*.youtube.com/*"],
         "css": ["css/content.css"],
-        "js": [
-          "js/content.js"
-        ]
+        "js": [ "js/content.js" ]
       }
     ],
     "web_accessible_resources": [
-      "js/modules/*.mjs"
+      {
+        "resources": [ "js/modules/*.mjs" ],
+        "matches": ["*://*.youtube.com/*"]
+      }
     ],
     "commands": {
       "next-chapter": {
