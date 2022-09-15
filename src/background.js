@@ -7,3 +7,17 @@ chrome.commands.onCommand.addListener(function (command) {
         });
     }
 });
+
+chrome.runtime.onMessage.addListener(function (message) {
+    if (message.type === "chapter") {
+        chrome.notifications.create(
+            "",
+            {
+                iconUrl: chrome.runtime.getURL("images/icon48.png"),
+                title: message.title,
+                message: message.text,
+                type: "basic"
+            }
+        );
+    }
+});

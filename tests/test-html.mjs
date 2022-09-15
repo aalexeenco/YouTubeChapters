@@ -18,8 +18,11 @@ export const ytDescriptionChapterLinkHtml = (
 </a>
 `;
 
-export const ytPlayerHtml = ({ playerId, chapterTitle, testId }) => `
+export const ytPlayerHtml = ({ playerId, videoTitle, chapterTitle, testId }) => `
 <div id="${playerId}" data-testid="${testId ?? playerId}">
+    <div class="ytp-chrome-top">
+        <div class="ytp-title">${videoTitle ?? ""}</div>
+    </div>
     <video class="html5-main-video">
     <div class="ytp-chapter-container">
         <button class="ytp-chapter-title">

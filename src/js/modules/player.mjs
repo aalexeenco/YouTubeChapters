@@ -17,6 +17,18 @@ export class YTPlayer {
         return this.element?.querySelector(".ytp-chapter-title-content");
     }
 
+    get chapterTitle() {
+        return this.chapterTitleElement?.textContent;
+    }
+
+    get videoElement() {
+        return this.element?.querySelector("video.html5-main-video");
+    }
+
+    get videoTitle() {
+        return this.element?.querySelector(".ytp-title").textContent;
+    }
+
     async initAsync() {
         console.debug("%s: #%s | initializing...", YTPlayer.name, this.#id);
         if (!this.element) {
@@ -29,7 +41,16 @@ export class YTPlayer {
         console.debug("%s: #%s | initialized", YTPlayer.name, this.#id);
     }
 
-    onChapterChanged() {}
+    onChapterChanged() {
+        console.debug("%s: #%s | send runtime message", YTPlayer.name, this.element?.id);
+        chrome.runtime.sendMessage(
+            { 
+                type: "chapter",
+                title: this.videoTitle,
+                text: this.chapterTitle
+            }
+        );
+    }
 }
 
 export const withChapterOverlay = (YTPlayer) =>
@@ -37,7 +58,7 @@ export const withChapterOverlay = (YTPlayer) =>
         async initAsync() {
             await super.initAsync();
             console.debug("%s: #%s | initializing...", withChapterOverlay.name, this.element?.id);
-            const titleText = this.chapterTitleElement.textContent;
+            const titleText = this.chapterTitle;
             if (titleText) {
                 this.displayOverlay(titleText);
             }
@@ -54,8 +75,9 @@ export const withChapterOverlay = (YTPlayer) =>
             this.overlay.chapterTitle = chapterTitleText;
         }
 
-        onChapterChanged() {
-            const titleText = this.chapterTitleElement.textContent;
+        onChapterChanged(mutations) {
+            super.onChapterChanged(mutations);
+            const titleText = this.chapterTitle;
             console.debug("%s: #%s | chapter changed '%s'", withChapterOverlay.name, this.element?.id, titleText);
             if (titleText) {
                 this.displayOverlay(titleText);
@@ -81,21 +103,17 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
         async initAsync() {
             await super.initAsync();
             console.debug("%s: #%s | initializing...", withChapterNavigation.name, this.element?.id);
-            if (this.chapterTitleElement.textContent) {
+            if (this.chapterTitle) {
                 this.addChapterControls();
             }
             this.#chapters.initAsync();
             console.debug("%s: #%s | initialized", withChapterNavigation.name, this.element?.id);
         }
 
-        get videoElement() {
-            return this.element?.querySelector("video.html5-main-video");
-        }
-
         onChapterChanged(mutations) {
             super.onChapterChanged(mutations);
             console.debug("%s: #%s | chapter changed", withChapterNavigation.name, this.element?.id);
-            if (this.chapterTitleElement.textContent === "") {
+            if (this.chapterTitle === "") {
                 this.removeChapterControls();
                 return;
             }

@@ -8,6 +8,7 @@
       "48": "images/icon48.png",
       "128": "images/icon128.png" 
     },
+    "permissions": ["notifications"],
     "host_permissions": ["*://*.youtube.com/*"],
     "background": {
       "service_worker": "background.js"

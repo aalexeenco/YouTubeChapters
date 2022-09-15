@@ -4,6 +4,7 @@ import { ytPlayerHtml } from "./../test-html.mjs";
 import { screen, waitFor } from "./../testing-library-dom.mjs";
 
 const PLAYER_ID = "foo";
+const PLAYER_VIDEO_TITLE = "Video Title";
 const PLAYER_TEST_ID = "player-test-id";
 
 describe("YTPlayer unit and chapter changed callback tests", () => {
@@ -16,11 +17,22 @@ describe("YTPlayer unit and chapter changed callback tests", () => {
         onChapterChangedSpy = jest.spyOn(player, player.onChapterChanged.name);
     });
 
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
     describe("Player node is in the DOM already when the player is initialized", () => {
         beforeEach(async () => {
             document.body.innerHTML = `
             <div>
-                ${ytPlayerHtml({ playerId: PLAYER_ID, chapterTitle: "Chapter", testId: PLAYER_TEST_ID })}
+                ${ytPlayerHtml(
+                    { 
+                        playerId: PLAYER_ID,
+                        videoTitle: PLAYER_VIDEO_TITLE,
+                        chapterTitle: "Chapter",
+                        testId: PLAYER_TEST_ID
+                    }
+                )}
             </div>
             `;
             await player.initAsync();
@@ -37,12 +49,28 @@ describe("YTPlayer unit and chapter changed callback tests", () => {
             expect(player.element).toContainElement(player.chapterTitleElement);
         });
 
+        test("Player video element is in the DOM", () => {
+            expect(player.videoElement).toBeDefined();
+        });
+
+        test("Video title is available", () => {
+            expect(player.videoTitle).toEqual(PLAYER_VIDEO_TITLE);
+        });
+
         test("Chapter title element is not empty", () => {
             expect(player.chapterTitleElement).not.toBeEmptyDOMElement();
         });
 
+        test("Chapter title is equal to chapter title element text content", () => {
+            expect(player.chapterTitle).toEqual(player.chapterTitleElement.textContent);
+        });
+
         test("Chapter changed callback has not been called on init", () => {
             expect(onChapterChangedSpy).not.toHaveBeenCalled();
+        });
+
+        test("Message containing video and chapter titles has not been send", () => {
+            expect(chrome.runtime.sendMessage).not.toHaveBeenCalled();
         });
 
         describe("Chapter title is changed afterwards", () => {
@@ -56,6 +84,16 @@ describe("YTPlayer unit and chapter changed callback tests", () => {
                     expect(onChapterChangedSpy).toHaveBeenCalledWith([expect.any(MutationRecord)]);
                     const mutationsArg = onChapterChangedSpy.mock.calls[0][0];
                     expect(mutationsArg[0].addedNodes.length).toEqual(1);
+                });
+            });
+
+            test("Message containing video and chapter titles is send eventually", async () => {
+                await waitFor(() => {
+                    expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({
+                        type: "chapter",
+                        title: player.videoTitle,
+                        text: player.chapterTitle
+                    });
                 });
             });
 
@@ -79,7 +117,19 @@ describe("YTPlayer unit and chapter changed callback tests", () => {
             expect(player.element).toBeNull();
         });
 
+        test("Player video element is undefined", () => {
+            expect(player.videoElement).toBeUndefined();
+        });
+
+        test("Video title is undefined", () => {
+            expect(player.videoTitle).toBeUndefined();
+        });
+
         test("Chapter title element is undefined", () => {
+            expect(player.chapterTitleElement).toBeUndefined();
+        });
+
+        test("Chapter title is undefined", () => {
             expect(player.chapterTitleElement).toBeUndefined();
         });
 
@@ -87,10 +137,21 @@ describe("YTPlayer unit and chapter changed callback tests", () => {
             expect(onChapterChangedSpy).not.toHaveBeenCalled();
         });
 
+        test("Message containing video and chapter titles has not been send", () => {
+            expect(chrome.runtime.sendMessage).not.toHaveBeenCalled();
+        });
+
         describe("Player node is added to the DOM afterwards", () => {
             beforeEach(() => {
                 document.body.querySelector("div").innerHTML = `
-                ${ytPlayerHtml({ playerId: PLAYER_ID, chapterTitle: "", testId: PLAYER_TEST_ID })}
+                ${ytPlayerHtml(
+                    { 
+                        playerId: PLAYER_ID,
+                        videoTitle: PLAYER_VIDEO_TITLE,
+                        chapterTitle: "",
+                        testId: PLAYER_TEST_ID
+                    }
+                )}
                 `;
             });
 
@@ -108,8 +169,16 @@ describe("YTPlayer unit and chapter changed callback tests", () => {
                 expect(player.element).toContainElement(player.chapterTitleElement);
             });
 
+            test("Video title is available", () => {
+                expect(player.videoTitle).toEqual(PLAYER_VIDEO_TITLE);
+            });
+
             test("Chapter title element is empty", () => {
                 expect(player.chapterTitleElement).toBeEmptyDOMElement();
+            });
+
+            test("Chapter title is empty string", () => {
+                expect(player.chapterTitle).toEqual("");
             });
 
             describe("Player initialization has eventually completed", () => {
