@@ -27,7 +27,15 @@ jobs:
           cp LICENSE ./dist/
           mkdir release
           cd dist
+          rm manifest-v2.json
           zip -r ../release/yt_chapters_ext.zip ./*
+          cd ..
+          rm -rf dist
+          npm run build:firefox:production
+          cp LICENSE ./dist/
+          cd dist
+          rm manifest-v2.json
+          zip -r ../release/yt_chapters_ext_firefox.zip ./*
       - name: Create Release and upload assets
         uses: docker://antonyurchenko/git-release:latest
         env:
