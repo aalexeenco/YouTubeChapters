@@ -26,7 +26,7 @@ export class YTPlayer {
     }
 
     get videoTitle() {
-        return this.element?.querySelector(".ytp-title").textContent;
+        return this.element?.querySelector(".ytp-title")?.textContent;
     }
 
     async initAsync() {
