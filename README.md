@@ -13,20 +13,22 @@ the YouTube player.
 
 ## Installation
 
-Download the [latest](https://github.com/aalexeenco/YouTubeChapters/releases/latest/download/yt_chapters_ext.zip) version and extract to a desired location and then load extension manually:
+ and extract to a desired location and then load extension manually:
 
 ### Chrome
 
-1. Open Chrome browser
-2. Click `Customize and control Google Chrome` > `More Tools` > `Extensions` or enter `chrome://extensions` into the address bar
-3. Ensure `Developer mode` is turned on
-4. Click `Load unpacked` button and select the extension's directory
+1. Download the [latest](https://github.com/aalexeenco/YouTubeChapters/releases/latest/download/yt_chapters_ext.zip) version
+2. Open Chrome browser
+3. Click `Customize and control Google Chrome` > `More Tools` > `Extensions` or enter `chrome://extensions` into the address bar
+4. Ensure `Developer mode` is turned on
+5. Click `Load unpacked` button and select the extension's directory
 
 ### Firefox
 
-1. Open Firefox browser
-2. Open `about:debugging` page
-3. Click `This Firefox`, click `Load Temporary Add-on` and then select any file in the extension's directory
+1. Download the [latest](https://github.com/aalexeenco/YouTubeChapters/releases/latest/download/yt_chapters_ext_firefox.zip) version
+2. Open Firefox browser
+3. Open `about:debugging` page
+4. Click `This Firefox`, click `Load Temporary Add-on` and then select any file in the extension's directory
 
 ## Development
 
