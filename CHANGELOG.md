@@ -1,3 +1,9 @@
+## [3.0.0] - 2022-09-16
+### Added
+- Show native notification on chapter change ([#132])
+### Changed
+- Migrate to extension manifest v3 ([#130])
+
 ## [2.1.1] - 2021-12-18
 ### Fixed
 - Disabled chapter controls on first load when video autoplay is off ([#72])
@@ -37,6 +43,7 @@
 [2.0.0]: https://github.com/aalexeenco/YouTubeChapters/releases/tag/v2.0.0
 [2.1.0]: https://github.com/aalexeenco/YouTubeChapters/releases/tag/v2.1.0
 [2.1.1]: https://github.com/aalexeenco/YouTubeChapters/releases/tag/v2.1.1
+[3.0.0]: https://github.com/aalexeenco/YouTubeChapters/releases/tag/v3.0.0
 
 [37]: https://github.com/aalexeenco/YouTubeChapters/pull/37
 [46]: https://github.com/aalexeenco/YouTubeChapters/pull/46
@@ -45,3 +52,5 @@
 [52]: https://github.com/aalexeenco/YouTubeChapters/issues/52
 [53]: https://github.com/aalexeenco/YouTubeChapters/issues/53
 [#72]: https://github.com/aalexeenco/YouTubeChapters/issues/72
+[#130]: https://github.com/aalexeenco/YouTubeChapters/issues/130
+[#132]: https://github.com/aalexeenco/YouTubeChapters/issues/132
