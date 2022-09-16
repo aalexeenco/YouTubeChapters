@@ -10,7 +10,7 @@
     "build:production": "npm run build -- --env-name production",
     "build:firefox": "npm run build",
     "postbuild:firefox": "cross-var yvar ./dist/manifest-v2.json ./dist/manifest.json --VERSION $npm_package_version",
-    "build:firefox:production": "npm run build:firefox -- --env-name production",
+    "build:firefox:production": "npm run build:firefox -- -- --env-name production",
     "coverage:ci": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --ci --coverage",
     "lint": "eslint --ext .js,.mjs ./src/js/",
     "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js"
