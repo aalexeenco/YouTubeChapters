@@ -25,7 +25,7 @@
     "@testing-library/jest-dom": "^5.16.5",
     "babel-plugin-transform-remove-console": "^6.9.4",
     "cross-var": "^1.1.0",
-    "eslint": "^8.25.0",
+    "eslint": "^8.26.0",
     "eslint-config-prettier": "^8.5.0",
     "jest": "^27.4.5",
     "jest-chrome": "^0.7.2",
