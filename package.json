@@ -18,19 +18,19 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@babel/cli": "^7.18.10",
-    "@babel/core": "^7.19.3",
+    "@babel/cli": "^7.21.0",
+    "@babel/core": "^7.21.0",
     "@babel/eslint-parser": "^7.19.1",
     "@testing-library/dom": "^8.19.0",
     "@testing-library/jest-dom": "^5.16.5",
     "babel-plugin-transform-remove-console": "^6.9.4",
     "cross-var": "^1.1.0",
-    "eslint": "^8.25.0",
-    "eslint-config-prettier": "^8.5.0",
+    "eslint": "^8.35.0",
+    "eslint-config-prettier": "^8.7.0",
     "jest": "^27.4.5",
     "jest-chrome": "^0.7.2",
-    "jest-stare": "^2.4.1",
-    "prettier": "^2.7.1",
+    "jest-stare": "^2.5.0",
+    "prettier": "^2.8.4",
     "yvar": "^0.1.3"
   }
 }
