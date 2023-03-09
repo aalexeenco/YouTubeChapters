@@ -88,12 +88,6 @@ export function parseChapters(container) {
             const chapterStartTime = parseInt(a.href.substring(a.href.indexOf("&t=") + 3));
             return { t: chapterStartTime, anchor: a };
         });
-    if (chapters.length > 0) {
-        const firstChapterLinkIndex = chapters.findIndex((x) => x.t == 0);
-        if (firstChapterLinkIndex > 0) {
-            chapters.splice(0, firstChapterLinkIndex);
-        }
-    }
-
+    
     return chapters;
 }
