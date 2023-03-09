@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Chapter overlay element contains empty overlay container when chapter title is not set 1`] = `"<div class=\\"ytp-player-content ytp-chapter-title-overlay-container\\"></div>"`;
+exports[`Chapter overlay element contains empty overlay container when chapter title is not set 1`] = `"<div class="ytp-player-content ytp-chapter-title-overlay-container"></div>"`;
 
-exports[`Chapter overlay element contains empty overlay container when chapter title is set to '' 1`] = `"<div class=\\"ytp-player-content ytp-chapter-title-overlay-container\\"></div>"`;
+exports[`Chapter overlay element contains empty overlay container when chapter title is set to '' 1`] = `"<div class="ytp-player-content ytp-chapter-title-overlay-container"></div>"`;
 
-exports[`Chapter overlay element with chapter title 'Hello, World!' 1`] = `"<div class=\\"ytp-player-content ytp-chapter-title-overlay-container\\"><span class=\\"ytp-chapter-title-overlay ytp-overlay-reveal\\">Hello, World!</span></div>"`;
+exports[`Chapter overlay element with chapter title 'Hello, World!' 1`] = `"<div class="ytp-player-content ytp-chapter-title-overlay-container"><span class="ytp-chapter-title-overlay ytp-overlay-reveal">Hello, World!</span></div>"`;
