@@ -1,5 +1,5 @@
 import { parseChapters } from "js/modules/chapters.mjs";
-import { ytDescriptionChapterLinkHtml } from "./../test-html.mjs";
+import { ytChapterLinkHtml } from "./../test-html.mjs";
 import "@testing-library/jest-dom";
 
 const videoPageURI = "http://youtube.com/watch?v=test"
@@ -16,17 +16,12 @@ describe("Chapters are parsed from the chapters panel", () => {
         <div>
             New <a href="http://youtube.com?watch?v=abc&=34" />video</a> is out!
 
-            ${ytDescriptionChapterLinkHtml(10, "18:00", "I'm not a chapter!", videoPageURI)}
-
-            ${ytDescriptionChapterLinkHtml(0, "00:00", "Chapter 1.", videoPageURI)}
-            ${ytDescriptionChapterLinkHtml(60, "01:00", "Chapter 11.", videoPageURI)}
-            ${ytDescriptionChapterLinkHtml(125, "02:05", "Chapter 4.", videoPageURI)}
-            ${ytDescriptionChapterLinkHtml(366, "03:06", "Chapter 2.", videoPageURI)}
-            ${ytDescriptionChapterLinkHtml(3612, "01:00:12", "Chapter 5.", videoPageURI)}
-            ${ytDescriptionChapterLinkHtml(3735, "01:02:05", "Chapter 3.", videoPageURI)}
-
-            <a href="${videoPageURI}&t=4800" class="yt-simple-endpoint" />Chapter I am not.</a>
-            <a href="${videoPageURI}&t=5800" class="yt-formatted-string" />Neither am I.</a>
+            ${ytChapterLinkHtml(0, "00:00", "Chapter 1.", videoPageURI)}
+            ${ytChapterLinkHtml(60, "01:00", "Chapter 11.", videoPageURI)}
+            ${ytChapterLinkHtml(125, "02:05", "Chapter 4.", videoPageURI)}
+            ${ytChapterLinkHtml(366, "03:06", "Chapter 2.", videoPageURI)}
+            ${ytChapterLinkHtml(3612, "01:00:12", "Chapter 5.", videoPageURI)}
+            ${ytChapterLinkHtml(3735, "01:02:05", "Chapter 3.", videoPageURI)}
 
             Please, subscribe to my channel!
             <a href="http://youtube.com?search?q=peace" />

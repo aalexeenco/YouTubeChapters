@@ -82,18 +82,12 @@ export function parseChapters(container) {
         extraParamStartIndex > -1
             ? document.baseURI.substring(0, extraParamStartIndex)
             : document.baseURI;
-    const chapters = [...container.querySelectorAll("a.yt-simple-endpoint.ytd-macro-markers-list-item-renderer")]
+    const chapters = [...container.querySelectorAll("a.yt-simple-endpoint.ytd-macro-markers-list-item-renderer:not([hidden])")]
         .filter((a) => a.href.indexOf(videoURI) > -1 && a.href.indexOf("&t=") > -1)
         .map((a) => {
             const chapterStartTime = parseInt(a.href.substring(a.href.indexOf("&t=") + 3));
             return { t: chapterStartTime, anchor: a };
         });
-    if (chapters.length > 0) {
-        const firstChapterLinkIndex = chapters.findIndex((x) => x.t == 0);
-        if (firstChapterLinkIndex > 0) {
-            chapters.splice(0, firstChapterLinkIndex);
-        }
-    }
-
+    
     return chapters;
 }
