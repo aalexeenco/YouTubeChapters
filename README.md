@@ -13,7 +13,7 @@ the YouTube player.
 
 ## Installation
 
- and extract to a desired location and then load extension manually:
+ Download the archive and extract to a desired location and then load the extension manually:
 
 ### Chrome
 
