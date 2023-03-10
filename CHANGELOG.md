@@ -51,6 +51,7 @@
 [50]: https://github.com/aalexeenco/YouTubeChapters/pull/50
 [52]: https://github.com/aalexeenco/YouTubeChapters/issues/52
 [53]: https://github.com/aalexeenco/YouTubeChapters/issues/53
-[#72]: https://github.com/aalexeenco/YouTubeChapters/issues/72
-[#130]: https://github.com/aalexeenco/YouTubeChapters/issues/130
-[#132]: https://github.com/aalexeenco/YouTubeChapters/issues/132
+[72]: https://github.com/aalexeenco/YouTubeChapters/issues/72
+[130]: https://github.com/aalexeenco/YouTubeChapters/issues/130
+[132]: https://github.com/aalexeenco/YouTubeChapters/issues/132
+[167]: https://github.com/aalexeenco/YouTubeChapters/issues/167
