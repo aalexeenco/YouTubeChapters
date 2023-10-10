@@ -1,3 +1,7 @@
+## [3.2.0] - 2023-10-10
+### Fixed
+- Chapters not parsed when url does not contain ?v= ([#197])
+
 ## [3.1.0] - 2023-03-10
 ### Fixed
 - Duplicate chapter elements prevent selecting previous chapter ([#167])
@@ -49,6 +53,7 @@
 [2.1.1]: https://github.com/aalexeenco/YouTubeChapters/releases/tag/v2.1.1
 [3.0.0]: https://github.com/aalexeenco/YouTubeChapters/releases/tag/v3.0.0
 [3.1.0]: https://github.com/aalexeenco/YouTubeChapters/releases/tag/v3.1.0
+[3.2.0]: https://github.com/aalexeenco/YouTubeChapters/releases/tag/v3.2.0
 
 [37]: https://github.com/aalexeenco/YouTubeChapters/pull/37
 [46]: https://github.com/aalexeenco/YouTubeChapters/pull/46
@@ -60,3 +65,4 @@
 [130]: https://github.com/aalexeenco/YouTubeChapters/issues/130
 [132]: https://github.com/aalexeenco/YouTubeChapters/issues/132
 [167]: https://github.com/aalexeenco/YouTubeChapters/issues/167
+[197]: https://github.com/aalexeenco/YouTubeChapters/issues/197
