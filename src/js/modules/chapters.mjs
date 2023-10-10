@@ -77,11 +77,9 @@ export class YTChapterList {
 }
 
 export function parseChapters(container) {
-    const extraParamStartIndex = document.baseURI.indexOf("&");
-    const videoURI =
-        extraParamStartIndex > -1
-            ? document.baseURI.substring(0, extraParamStartIndex)
-            : document.baseURI;
+    const regexp = /https:\/\/www\.youtube\.com\/watch.*[?&]v=([^&#]+)/i;
+    const videoId = document.baseURI.match(regexp)[1];
+    const videoURI = `https://www.youtube.com/watch?v=${videoId}`;
     const chapters = [...container.querySelectorAll("a.yt-simple-endpoint.ytd-macro-markers-list-item-renderer:not([hidden])")]
         .filter((a) => a.href.indexOf(videoURI) > -1 && a.href.indexOf("&t=") > -1)
         .map((a) => {

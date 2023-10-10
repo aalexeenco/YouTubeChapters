@@ -2,14 +2,12 @@ import { parseChapters } from "js/modules/chapters.mjs";
 import { ytChapterLinkHtml } from "./../test-html.mjs";
 import "@testing-library/jest-dom";
 
-const videoPageURI = "http://youtube.com/watch?v=test"
+const videoPageURI = "https://www.youtube.com/watch?v=test"
 
 describe("Chapters are parsed from the chapters panel", () => {
     let container;
-    let actualChapters;
     
     beforeAll(() => {
-        document.head.innerHTML = `<base>${videoPageURI}&ch=a&from=ie</base>`;
         container = document.createElement("div");
         container.innerHTML = `
         <p><span> Header <b>text</b> </span>
@@ -27,11 +25,17 @@ describe("Chapters are parsed from the chapters panel", () => {
             <a href="http://youtube.com?search?q=peace" />
         </div>
         `;
-        
-        actualChapters = parseChapters(container);
     });
 
-    test("All chapters are parsed", () => {
+    test("When baseURI is canonical, then all chapters are parsed", () => {
+        document.head.innerHTML = `<base href="https://www.youtube.com/watch?v=test#b" />`;
+
+        const actualChapters = parseChapters(container);
+
+        expectChapters(actualChapters);
+    });
+
+    function expectChapters(actualChapters) {
         expect(actualChapters).toHaveLength(6);
 
         expect(actualChapters[0].t).toEqual(0);
@@ -46,11 +50,19 @@ describe("Chapters are parsed from the chapters panel", () => {
         expect(actualChapters[4].anchor).toHaveTextContent("Chapter 5.");
         expect(actualChapters[5].t).toEqual(3735);
         expect(actualChapters[5].anchor).toHaveTextContent("Chapter 3.");
+    }
+
+    test("When baseURI is uncanonical, then all chapters are parsed", () => {
+        document.head.innerHTML = `<base href="https://www.youtube.com/watch?app=desktop&v=test&ch=a&from=ie#b" />`;
+
+        const actualChapters = parseChapters(container);
+
+        expectChapters(actualChapters);
     });
 });
 
 test("When there are no chapter links in the container, then empty array is returned", () => {
-    document.head.innerHTML = `<base>${videoPageURI}&ch=a&from=ie</base>`;
+    document.head.innerHTML = `<base href="https://www.youtube.com/watch?v=abc" />`;
     const container = document.createElement("div");
     container.innerHTML = `
     <p><span> Header <b>text</b> </span>
