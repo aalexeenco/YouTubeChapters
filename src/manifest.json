@@ -1,7 +1,7 @@
 {
     "name": "Chapters Navigation for YouTube",
     "version": "$_{ VERSION }",
-    "description": "Allows to navigate YouTube video chapters using in-player widgets and shows chapter titles as overlays.",
+    "description": "Allows to navigate YouTube video chapters using in-player widgets and shows chapter title as overlay.",
     "manifest_version": 3,
     "icons": { 
       "16": "images/icon16.png",
