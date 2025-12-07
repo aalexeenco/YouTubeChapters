@@ -245,6 +245,14 @@ export class YTChannelPlayer extends withChapterOverlay(YTPlayer) {
 
 export class YTMainPlayer extends withChapterNavigation(withChapterOverlay(YTPlayer), YTChapterList) {
     constructor() {
-        super("movie_player", { tagName: "div", containerId: "panels" });
+        super(
+            "movie_player", 
+            { 
+                tagName: "ytd-macro-markers-list-renderer",
+                attrName: "panel-target-id",
+                attrValue: "engagement-panel-macro-markers-description-chapters",
+                containerId: "contents"
+            }
+        );
     }
 }

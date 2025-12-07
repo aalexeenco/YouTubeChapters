@@ -143,7 +143,7 @@ describe("YTChapterList unit tests", () => {
         });
     });
 
-    describe("Video description node is in the DOM already", () => {
+    describe("Chapter list container node is in the DOM already", () => {
         beforeEach(() => {
             document.body.insertAdjacentHTML(
                 "afterbegin",
@@ -157,7 +157,7 @@ describe("YTChapterList unit tests", () => {
             );
         });
 
-        test("Chapter container element is the DOM element with the given id", () => {
+        test("Chapter list container element is the DOM element with the given id", () => {
             expect(chapterList.containerElement).toBeDefined();
             expect(chapterList.containerElement.id).toBe(CHAPTERS_CONTAINER_ID);
             expect(chapterList.containerElement).toBe(
