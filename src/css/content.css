@@ -1,12 +1,21 @@
-.ytp-player-content.ytp-chapter-title-overlay-container {
-    left: 12px;
-    right: 12px;
+.ytp-delhi-modern.ytp-delhi-modern-compact-controls .ytp-chrome-controls .ytp-chapter-button {
+    width: var(--yt-delhi-pill-height,48px);
+    height: var(--yt-delhi-pill-height,48px);
+    border-radius: 50%;
+    margin-top: var(--yt-delhi-pill-top-height,12px);
+    -webkit-backdrop-filter: var(--yt-frosted-glass-backdrop-filter-override,blur(16px));
+    backdrop-filter: var(--yt-frosted-glass-backdrop-filter-override,blur(16px));
+    background: var(--yt-spec-overlay-background-medium-light,rgba(0,0,0,.3));
+    text-shadow: 0 0 2px #000;
+    padding: 0;
 }
 
-.ytp-autohide:not(.ytp-ad-overlay-open) .ytp-chapter-title-overlay-container,
-.ytp-hide-controls .ytp-chapter-title-overlay-container,
-.ytp-autohide .ytp-chapter-title-overlay-container {
-    bottom: 12px;
+.ytp-delhi-modern.ytp-delhi-modern-compact-controls .ytp-chrome-controls .ytp-chapter-button svg {
+    width: 24px;
+    height: 24px;
+    padding: 8px;
+    -webkit-filter: drop-shadow(0 0 1px rgba(0,0,0,.8));
+    filter: drop-shadow(0 0 1px rgba(0,0,0,.8));
 }
 
 .ytp-chapter-title-overlay {
@@ -17,6 +26,7 @@
     color: #fff;
     padding: 1em;
     font-size: 1.5em;
+    max-width: 60%;
     z-index: 28;
     opacity: 0;
     transform: scaleX(0);

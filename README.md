@@ -19,7 +19,7 @@ the YouTube player.
 
 1. Download the [latest](https://github.com/aalexeenco/YouTubeChapters/releases/latest/download/yt_chapters_ext.zip) version
 2. Open Chrome browser
-3. Click `Customize and control Google Chrome` > `More Tools` > `Extensions` or enter `chrome://extensions` into the address bar
+3. Enter `chrome://extensions` into the address bar
 4. Ensure `Developer mode` is turned on
 5. Click `Load unpacked` button and select the extension's directory
 

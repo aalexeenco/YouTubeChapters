@@ -39,9 +39,9 @@ describe("YTChapterList unit tests", () => {
         jest.resetAllMocks();
     });
 
-    describe("Videо description node is not in the DOM yet", () => {
+    describe("Chapter list container node is not in the DOM yet", () => {
         test(
-            "Chapter container element is null",
+            "Chapter list container element is null",
             by(expecting(chapterListContainerElement), not(toBeInTheDocument))
         );
 
@@ -74,7 +74,7 @@ describe("YTChapterList unit tests", () => {
                 await expectTimeout(chapterListInitialization);
             });
 
-            describe("Video description node is added to the DOM afterwards and initialization is complete", () => {
+            describe("Chapter list container node is added to the DOM afterwards and initialization is complete", () => {
                 const parsedChapters = [
                     { t: 0, anchor: { id: "link1" } },
                     { t: 10, anchor: { id: "link2" } },
@@ -201,6 +201,7 @@ describe("YTChapterList unit tests", () => {
             test.each([
                 [0, 0, parsedChapters[1], undefined],
                 [6, 0, parsedChapters[1], undefined],
+                [10, 1, parsedChapters[2], parsedChapters[0]],
                 [11, 1, parsedChapters[2], parsedChapters[0]],
                 [20, 2, parsedChapters[3], parsedChapters[1]],
                 [21, 2, parsedChapters[3], parsedChapters[1]],

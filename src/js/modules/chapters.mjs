@@ -80,10 +80,11 @@ export function parseChapters(container) {
     const regexp = /https:\/\/www\.youtube\.com\/watch.*[?&]v=([^&#]+)/i;
     const videoId = document.baseURI.match(regexp)[1];
     const videoURI = `https://www.youtube.com/watch?v=${videoId}`;
-    const chapters = [...container.querySelectorAll("a.yt-simple-endpoint.ytd-macro-markers-list-item-renderer:not([hidden])")]
-        .filter((a) => a.href.indexOf(videoURI) > -1 && a.href.indexOf("&t=") > -1)
+    const chapters = [...container.querySelectorAll("ytd-engagement-panel-section-list-renderer[target-id='engagement-panel-macro-markers-description-chapters']:first-of-type ytd-macro-markers-list-item-renderer > a#endpoint")]
+        .filter((a) => a.href.indexOf(videoURI) > -1)
         .map((a) => {
-            const chapterStartTime = parseInt(a.href.substring(a.href.indexOf("&t=") + 3));
+            const timeIndex = a.href.indexOf("&t=");
+            const chapterStartTime = timeIndex > 0 ? parseInt(a.href.substring(timeIndex + 3)) : 0;
             return { t: chapterStartTime, anchor: a };
         });
     

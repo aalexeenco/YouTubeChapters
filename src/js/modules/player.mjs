@@ -55,6 +55,10 @@ export class YTPlayer {
 
 export const withChapterOverlay = (YTPlayer) =>
     class extends YTPlayer {
+        get overlayContainerElement() {
+            return this.element?.querySelector(".ytp-overlay-bottom-left");
+        }
+
         async initAsync() {
             await super.initAsync();
             console.debug("%s: #%s | initializing...", withChapterOverlay.name, this.element?.id);
@@ -69,7 +73,7 @@ export const withChapterOverlay = (YTPlayer) =>
             console.debug("%s: #%s | display overlay '%s'", withChapterOverlay.name, this.element?.id, chapterTitleText);
             if (!this.overlay) {
                 this.overlay = new YTPlayerChapterOverlay();
-                this.element.appendChild(this.overlay.element);
+                this.overlayContainerElement.appendChild(this.overlay.element);
             }
 
             this.overlay.chapterTitle = chapterTitleText;
@@ -147,10 +151,8 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
                 `<span>
                 <button class="ytp-button ytp-chapter-button ytp-chapter-button-prev" 
                     title="Previous Chapter" aria-label="Previous Chapter" data-controltype="previous" disabled>
-                    <svg height="100%" version="1.1" viewBox="0 0 36 36" width="100%">
-                        <use class="ytp-svg-shadow" xlink:href="#yt_id_01"></use>
-                        <path class="ytp-svg-fill" d="M 24,24 16,18 24,12 V 24 z" 
-                            id="yt_id_01">
+                    <svg viewBox="0 0 36 36" fill="none">
+                        <path d="M 27,5 5,18 27,31 z" fill="white">
                         </path>
                     </svg>
                 </button>
@@ -161,10 +163,8 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
                 `<span>
                 <button class="ytp-button ytp-chapter-button ytp-chapter-button-next" 
                     title="Next Chapter" aria-label="Next Chapter" data-controltype="next" disabled>
-                    <svg height="100%" version="1.1" viewBox="0 0 36 36" width="100%">
-                        <use class="ytp-svg-shadow" xlink:href="#yt_id_02"></use>
-                        <path class="ytp-svg-fill" d="M 12,24 20,18 12,12 V 22 z" 
-                            id="yt_id_02">
+                    <svg viewBox="0 0 36 36">
+                        <path d="M 9,5 31,18 9,31 z" fill="white">
                         </path>
                     </svg>
                 </button>
@@ -245,6 +245,6 @@ export class YTChannelPlayer extends withChapterOverlay(YTPlayer) {
 
 export class YTMainPlayer extends withChapterNavigation(withChapterOverlay(YTPlayer), YTChapterList) {
     constructor() {
-        super("movie_player", { tagName: "ytd-watch-flexy", containerId: "panels" });
+        super("movie_player", { tagName: "div", containerId: "panels" });
     }
 }

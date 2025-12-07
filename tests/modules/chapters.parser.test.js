@@ -14,12 +14,12 @@ describe("Chapters are parsed from the chapters panel", () => {
         <div>
             New <a href="http://youtube.com?watch?v=abc&=34" />video</a> is out!
 
-            ${ytChapterLinkHtml(0, "00:00", "Chapter 1.", videoPageURI)}
-            ${ytChapterLinkHtml(60, "01:00", "Chapter 11.", videoPageURI)}
-            ${ytChapterLinkHtml(125, "02:05", "Chapter 4.", videoPageURI)}
-            ${ytChapterLinkHtml(366, "03:06", "Chapter 2.", videoPageURI)}
-            ${ytChapterLinkHtml(3612, "01:00:12", "Chapter 5.", videoPageURI)}
-            ${ytChapterLinkHtml(3735, "01:02:05", "Chapter 3.", videoPageURI)}
+            ${ytChapterLinkHtml(0, "0:00", "Chapter 1.", videoPageURI)}
+            ${ytChapterLinkHtml(60, "1:00", "Chapter 11.", videoPageURI)}
+            ${ytChapterLinkHtml(125, "2:05", "Chapter 4.", videoPageURI)}
+            ${ytChapterLinkHtml(366, "3:06", "Chapter 2.", videoPageURI)}
+            ${ytChapterLinkHtml(3612, "1:00:12", "Chapter 5.", videoPageURI)}
+            ${ytChapterLinkHtml(3735, "1:02:05", "Chapter 3.", videoPageURI)}
 
             Please, subscribe to my channel!
             <a href="http://youtube.com?search?q=peace" />
@@ -53,7 +53,7 @@ describe("Chapters are parsed from the chapters panel", () => {
     }
 
     test("When baseURI is uncanonical, then all chapters are parsed", () => {
-        document.head.innerHTML = `<base href="https://www.youtube.com/watch?app=desktop&v=test&ch=a&from=ie#b" />`;
+        document.head.innerHTML = `<base href="https://www.youtube.com/watch?app=desktop&v=test&t=10s&ch=a&from=ie#b" />`;
 
         const actualChapters = parseChapters(container);
 
@@ -73,4 +73,63 @@ test("When there are no chapter links in the container, then empty array is retu
     const actualChapters = parseChapters(container);
 
     expect(actualChapters).toHaveLength(0);
+});
+
+test("Duplicate chapter links are ignored", () => {
+    document.head.innerHTML = `<base href="${videoPageURI}" />`;
+    const container = document.createElement("div");
+    container.innerHTML = `
+    <ytd-engagement-panel-section-list-renderer target-id="engagement-panel-macro-markers-description-chapters">
+        <div id="content">
+            <ytd-macro-markers-list-renderer panel-target-id="engagement-panel-macro-markers-description-chapters">
+                <div id="contents">
+                    ${ytChapterLinkHtml(0, "0:00", "Chapter 1.", videoPageURI)}
+                    ${ytChapterLinkHtml(10, "0:10", "Chapter 2.", videoPageURI)}
+                </div>
+            </ytd-macro-markers-list-renderer>
+        </div>
+    </ytd-engagement-panel-section-list-renderer>
+    <ytd-engagement-panel-section-list-renderer target-id="engagement-panel-macro-markers-description-chapters">
+        <div id="content">
+            <ytd-macro-markers-list-renderer panel-target-id="engagement-panel-macro-markers-description-chapters">
+                <div id="contents">
+                    ${ytChapterLinkHtml(0, "0:00", "Chapter 1.", videoPageURI)}
+                    ${ytChapterLinkHtml(10, "0:10", "Chapter 2.", videoPageURI)}
+                </div>
+            </ytd-macro-markers-list-renderer>
+        </div>
+    </ytd-engagement-panel-section-list-renderer>
+    <ytd-engagement-panel-section-list-renderer target-id="engagement-panel-structured-description">
+        <div id="content">
+            <ytd-structured-description-content-renderer>
+            <!-- 
+            .
+            . Skipped DOM tree hierarchy
+            .
+            -->
+            <div id="items">
+                <ytd-horizontal-card-list-renderer>
+                <div id="items" class="style-scope ytd-horizontal-card-list-renderer">
+                    ${ytChapterLinkHtml(0, "0:00", "Chapter 1.", videoPageURI, "ytd-horizontal-card-list-renderer")}
+                    ${ytChapterLinkHtml(10, "0:10", "Chapter 2.", videoPageURI, "ytd-horizontal-card-list-renderer")}
+                </div>
+                </ytd-horizontal-card-list-renderer>
+            </div>
+            <!-- 
+            .
+            . Skipped DOM tree hierarchy (closing tags)
+            .
+            -->
+            <ytd-structured-description-content-renderer>
+        </div>
+    </ytd-engagement-panel-section-list-renderer>
+    `;
+    
+    const actualChapters = parseChapters(container);
+
+    expect(actualChapters).toHaveLength(2);
+    expect(actualChapters[0].t).toEqual(0);
+    expect(actualChapters[0].anchor).toHaveTextContent("Chapter 1.");
+    expect(actualChapters[1].t).toEqual(10);
+    expect(actualChapters[1].anchor).toHaveTextContent("Chapter 2.");
 });
