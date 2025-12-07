@@ -14,7 +14,7 @@ export class YTPlayer {
     }
 
     get chapterTitleElement() {
-        return this.element?.querySelector(".ytp-chapter-title-content");
+        return this.element?.querySelector("button.ytp-chapter-title:not(.ytp-chapter-button) > .ytp-chapter-title-content");
     }
 
     get chapterTitle() {
@@ -148,27 +148,35 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
             );
             chapterTitleContainer.insertAdjacentHTML(
                 "beforebegin",
-                `<span>
-                <button class="ytp-button ytp-chapter-button ytp-chapter-button-prev" 
-                    title="Previous Chapter" aria-label="Previous Chapter" data-controltype="previous" disabled>
-                    <svg viewBox="0 0 36 36" fill="none">
-                        <path d="M 27,5 5,18 27,31 z" fill="white">
-                        </path>
-                    </svg>
-                </button>
-            </span>`
+                `
+                <div class="ytp-chapter-container ytp-chapter-control">
+                    <button class="ytp-chapter-title ytp-button ytp-chapter-button ytp-chapter-button-prev" 
+                        title="Previous Chapter" aria-label="Previous Chapter" data-controltype="previous" disabled>
+                        <div class="ytp-chapter-title-chevron">
+                            <svg height="100%" viewBox="0 0 24 24" width="100%">
+                                <path d="M14.29 18.71 l1.42-1.42 -5.3-5.29 5.3-5.29 -1.42-1.42 -6.7 6.71 z" fill="#fff"></path>
+                            </svg>
+                        </div>
+                        <div class="ytp-chapter-title-content">Prev</div>
+                    </button>
+                </div>
+                `
             );
             chapterTitleContainer.insertAdjacentHTML(
                 "beforebegin",
-                `<span>
-                <button class="ytp-button ytp-chapter-button ytp-chapter-button-next" 
-                    title="Next Chapter" aria-label="Next Chapter" data-controltype="next" disabled>
-                    <svg viewBox="0 0 36 36">
-                        <path d="M 9,5 31,18 9,31 z" fill="white">
-                        </path>
-                    </svg>
-                </button>
-            </span>`
+                `
+                <div class="ytp-chapter-container ytp-chapter-control">
+                    <button class="ytp-chapter-title ytp-button ytp-chapter-button ytp-chapter-button-next" 
+                        title="Next Chapter" aria-label="Next Chapter" data-controltype="next" disabled>
+                        <div class="ytp-chapter-title-content">Next</div>
+                        <div class="ytp-chapter-title-chevron">
+                            <svg height="100%" viewBox="0 0 24 24" width="100%">
+                                <path d="M9.71 18.71l-1.42-1.42 5.3-5.29-5.3-5.29 1.42-1.42 6.7 6.71z" fill="#fff"></path>
+                            </svg>
+                        </div>
+                    </button>
+                </div>
+                `
             );
 
             this.element
@@ -186,13 +194,14 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
         removeChapterControls() {
             console.debug("%s: #%s | remove chapter controls", withChapterNavigation.name, this.element.id);
             this.element
-                .querySelectorAll("button.ytp-chapter-button")
+                .querySelectorAll("div.ytp-chapter-control")
                 .forEach((btn) => btn.remove());
 
             chrome.runtime.onMessage.removeListener(this.#onRuntimeMessageCallback);
         }
 
-        onChapterControlButtonClick(button) {
+        onChapterControlButtonClick(target) {
+            const button = target.closest("button");
             const navigationDirection = button.attributes["data-controltype"].value;
             console.debug("%s: #%s | button(%s) clicked", withChapterNavigation.name, this.element.id, navigationDirection);
             this.navigateToChapter(navigationDirection);

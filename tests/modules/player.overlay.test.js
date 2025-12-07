@@ -18,7 +18,7 @@ describe("Chapter overlay mixin tests", () => {
                 <div class="ytp-overlay-bottom-left">
                 </div>
                 <video class="html5-main-video" />
-                <button>
+                <button class="ytp-chapter-title ytp-button">
                     <div class="ytp-chapter-title-content"></div>
                 </button>
             </div>
