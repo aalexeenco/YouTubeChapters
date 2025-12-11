@@ -75,7 +75,7 @@ describe("Player chapter navigation mixin unit tests", () => {
         expect(chapterListMock.initAsync).toHaveBeenCalledTimes(1);
     });
 
-    test("Next chapter link is found in the chapter list by the current time of the video element", () => {
+    test("Next chapter link is found in the list given the video element current time", () => {
         const videoTime = 42;
         videoCurrentTimeSpy.mockReturnValueOnce(videoTime);
         const expectedAnchor = {};
@@ -87,7 +87,7 @@ describe("Player chapter navigation mixin unit tests", () => {
         expect(actualAnchor).toBe(expectedAnchor);
     });
 
-    test("Previous chapter link is found in the chapter list by the current time of the video element", () => {
+    test("Previous chapter link is found in the list given the video element current time", () => {
         const videoTime = 52;
         videoCurrentTimeSpy.mockReturnValueOnce(videoTime);
         const expectedAnchor = {};
