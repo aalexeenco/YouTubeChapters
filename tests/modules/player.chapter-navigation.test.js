@@ -11,7 +11,6 @@ import {
     toBeEmptyDOMElement,
     toHaveBeenCalled,
 } from "../jest-enfluenter.mjs";
-import { waitFor } from "../testing-library-dom.mjs";
 
 const PLAYER_ID = "player-id";
 const CHAPTERS_CONTAINER_ID = "chapters-container-id";
@@ -37,21 +36,8 @@ describe("Player chapter navigation mixin functional tests", () => {
     let addChapterControlsSpy;
     const addChapterControls = () => addChapterControlsSpy;
     let removeChapterControlsSpy;
-    const removeChapterControls = () => removeChapterControlsSpy;
     let invalidateChapterControlsSpy;
     const invalidateChapterControls = () => invalidateChapterControlsSpy;
-
-    let videoPausedSpy;
-    let videoAddEventListenerSpy;
-
-    const waitForSeekedEventListenerAdded = () =>
-        waitFor(() =>
-            expect(videoAddEventListenerSpy).toHaveBeenCalledWith(
-                "seeked",
-                expect.any(Function),
-                { once: true }
-            )
-        );
 
     beforeEach(() => {
         document.body.innerHTML = `<div><div id="anotherPlayer"><video /></div></div>`;
@@ -75,7 +61,7 @@ describe("Player chapter navigation mixin functional tests", () => {
 
         test(
             "Chapter navigation controls are not added yet",
-            by(expecting(addChapterControls), not(toHaveBeenCalled))
+            by(timeoutWhile(waitingFor(addChapterControls)), toHaveBeenCalled)
         );
 
         describe("Player node is added to the DOM afterwards", () => {
@@ -84,11 +70,6 @@ describe("Player chapter navigation mixin functional tests", () => {
                     "afterbegin",
                     html.ytPlayerHtml({ playerId: PLAYER_ID, chapterTitle: "" })
                 );
-
-                videoPausedSpy = jest.spyOn(player.videoElement, "paused", "get");
-                videoAddEventListenerSpy = jest
-                    .spyOn(player.videoElement, "addEventListener")
-                    .mockImplementation(() => {});
 
                 await playerInitialization;
             });
@@ -99,72 +80,46 @@ describe("Player chapter navigation mixin functional tests", () => {
             );
 
             test(
-                "Chapter navigation controls are not added yet",
+                "Player has no navigation controls yet",
                 by(expecting(addChapterControls), not(toHaveBeenCalled))
             );
 
             describe("Chapter title text content is then changed to a non-empty value", () => {
-                beforeEach(() => {
-                    changeChapterTitle(player.chapterTitleElement, "Chapter Title");
-                });
-
-                test(
-                    "Chapter navigation controls are eventually added to the player",
-                    by(waitingFor(addChapterControls), toHaveBeenCalled)
-                );
-
-                test(
-                    "Chapter navigation controls are invalidated eventually",
-                    by(waitingFor(invalidateChapterControls), toHaveBeenCalled)
-                );
-
-                test("When chapter title content is cleared afterwards, then chapter navigation controls are removed", async () => {
-                    await waitingFor(addChapterControls, toHaveBeenCalled);
+                beforeEach(async () => {
                     addChapterControlsSpy.mockClear();
-
-                    changeChapterTitle(player.chapterTitleElement, null);
-
-                    await waitingFor(removeChapterControls, toHaveBeenCalled);
-                    // prettier-ignore
-                    await expect(waitingFor(addChapterControls, toHaveBeenCalled)).rejects.toThrow();
+                    invalidateChapterControlsSpy.mockClear();
+                    await changeChapterTitle(player.chapterTitleElement, "Chapter Title");
                 });
+
+                test(
+                    "Chapter navigation controls are added to the player",
+                    by(expecting(addChapterControls), toHaveBeenCalled)
+                );
+
+                test(
+                    "Given the video is playing and non-buffering, then chapter navigation controls are eventually invalidated",
+                    by(expecting(invalidateChapterControls), toHaveBeenCalled)
+                );
 
                 describe("Given controls are added", () => {
                     beforeEach(async () => {
-                        await waitingFor(addChapterControls, toHaveBeenCalled);
+                        await waitingFor(addChapterControls)(toHaveBeenCalled);
                         addChapterControlsSpy.mockClear();
+                        invalidateChapterControlsSpy.mockClear();
                     });
 
-                    describe("Video is paused and chapter title is changed", () => {
-                        beforeEach(() => {
-                            expect(player.videoElement.paused).toBeTruthy();
-                            changeChapterTitle(player.chapterTitleElement, "Chapter 1");
-                        });
-
-                        test(
-                            "Navigation controls are not re-added",
-                            by(timeoutWhile(waitingFor(addChapterControls)), toHaveBeenCalled)
-                        );
-
-                        test(
-                            "Navigation controls are not invalided",
-                            by(timeoutWhile(waitingFor(invalidateChapterControls), toHaveBeenCalled))
-                        );
-
-                        test("Chapter navigation controls are invalidated only after video has been seeked", async () => {
-                            await waitForSeekedEventListenerAdded();
-        
-                            videoAddEventListenerSpy.mock.calls[0][1]();
-        
-                            expect(invalidateChapterControlsSpy).toHaveBeenCalled();
-                        });
-                    });
-
-                    test("If video is not paused, then chapter navigation controls are invalidated on chapter change", async () => {
-                        videoPausedSpy.mockReturnValueOnce(false);
+                    test("Chapter navigation controls are invalidated on chapter change", async () => {
                         await changeChapterTitle(player.chapterTitleElement, "Chapter 2");
-    
-                        await waitingFor(invalidateChapterControls, toHaveBeenCalled);
+
+                        expect(invalidateChapterControlsSpy).toHaveBeenCalled();
+                    });
+
+                    test("When chapter title content is cleared, then chapter navigation controls are removed", async () => {
+                        await changeChapterTitle(player.chapterTitleElement, null);
+
+                        expect(removeChapterControlsSpy).toHaveBeenCalled();
+                        expect(addChapterControlsSpy).not.toHaveBeenCalled();
+                        expect(invalidateChapterControlsSpy).not.toHaveBeenCalled();
                     });
                 });
             });
@@ -175,11 +130,6 @@ describe("Player chapter navigation mixin functional tests", () => {
         beforeEach(async () => {
             // prettier-ignore
             document.body.innerHTML = `<div>${html.ytPlayerHtml({ playerId: PLAYER_ID, chapterTitle: "" })}</div>`;
-
-            videoPausedSpy = jest.spyOn(player.videoElement, "paused", "get");
-            videoAddEventListenerSpy = jest
-                .spyOn(player.videoElement, "addEventListener")
-                .mockImplementation(() => {});
 
             await player.initAsync();
         });
@@ -195,67 +145,34 @@ describe("Player chapter navigation mixin functional tests", () => {
         );
 
         describe("Chapter title text content is then changed to a non-empty value", () => {
-            beforeEach(() => {
-                changeChapterTitle(player.chapterTitleElement, "Chapter Title");
+            beforeEach(async () => {
+                await changeChapterTitle(player.chapterTitleElement, "Chapter Title");
             });
 
             test(
-                "Chapter navigation controls are eventually added to the player",
-                by(waitingFor(addChapterControls), toHaveBeenCalled)
+                "Chapter navigation controls are added to the player",
+                by(expecting(addChapterControls), toHaveBeenCalled)
             );
-
-            test(
-                "Chapter navigation controls are invalidated eventually",
-                by(waitingFor(invalidateChapterControls), toHaveBeenCalled)
-            );
-
-            test("When chapter title content is cleared afterwards, then chapter navigation controls are removed", async () => {
-                await waitingFor(addChapterControls, toHaveBeenCalled);
-                addChapterControlsSpy.mockClear();
-
-                changeChapterTitle(player.chapterTitleElement, null);
-
-                await waitingFor(removeChapterControls, toHaveBeenCalled);
-                // prettier-ignore
-                await expect(waitingFor(addChapterControls, toHaveBeenCalled)).rejects.toThrow();
-            });
 
             describe("Given controls are added", () => {
                 beforeEach(async () => {
-                    await waitingFor(addChapterControls, toHaveBeenCalled);
+                    await waitingFor(addChapterControls)(toHaveBeenCalled);
                     addChapterControlsSpy.mockClear();
+                    invalidateChapterControlsSpy.mockClear();
                 });
 
-                describe("Video is paused and chapter title is changed", () => {
-                    beforeEach(() => {
-                        expect(player.videoElement.paused).toBeTruthy();
-                        changeChapterTitle(player.chapterTitleElement, "Chapter 1");
-                    });
-
-                    test(
-                        "Navigation controls are not re-added",
-                        by(timeoutWhile(waitingFor(addChapterControls)), toHaveBeenCalled)
-                    );
-
-                    test(
-                        "Navigation controls are not invalided",
-                        by(timeoutWhile(waitingFor(invalidateChapterControls), toHaveBeenCalled))
-                    );
-
-                    test("Chapter navigation controls are invalidated only after video has been seeked", async () => {
-                        await waitForSeekedEventListenerAdded();
-    
-                        videoAddEventListenerSpy.mock.calls[0][1]();
-    
-                        expect(invalidateChapterControlsSpy).toHaveBeenCalled();
-                    });
-                });
-
-                test("If video is not paused, then chapter navigation controls are invalidated on chapter change", async () => {
-                    videoPausedSpy.mockReturnValueOnce(false);
+                test("Chapter navigation controls are invalidated on chapter change", async () => {
                     await changeChapterTitle(player.chapterTitleElement, "Chapter 2");
 
-                    await waitingFor(invalidateChapterControls, toHaveBeenCalled);
+                    expect(invalidateChapterControlsSpy).toHaveBeenCalled();
+                });
+
+                test("When chapter title content is cleared afterwards, then chapter navigation controls are removed", async () => {
+                    await changeChapterTitle(player.chapterTitleElement, null);
+
+                    expect(removeChapterControlsSpy).toHaveBeenCalled();
+                    expect(addChapterControlsSpy).not.toHaveBeenCalled();
+                    expect(invalidateChapterControlsSpy).not.toHaveBeenCalled();
                 });
             });
         });

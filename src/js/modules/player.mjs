@@ -129,16 +129,7 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
                 this.addChapterControls();
             }
 
-            const playerVideo = this.videoElement;
-            if (chapterTitleAdded || !playerVideo.paused) {
-                this.invalidateChapterControls();
-            } else {
-                playerVideo.addEventListener(
-                    "seeked",
-                    () => this.invalidateChapterControls(),
-                    { once: true }
-                );
-            }
+            this.invalidateChapterControls();
         }
 
         addChapterControls() {
@@ -225,6 +216,35 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
 
         invalidateChapterControls() {
             console.debug("%s: #%s | invalidating chapter controls...", withChapterNavigation.name, this.element.id);
+            const playerVideo = this.videoElement;
+            if (playerVideo.paused) {
+                console.debug("%s: #%s | update chapter controls on 'seek'", withChapterNavigation.name, this.element.id);
+                this.listenForEventOnce(playerVideo, "seeked", () => { this.updateChapterControls(); });
+            } else if (playerVideo.currentTime > 0) {
+                this.updateChapterControls();
+            } else {
+                console.debug("%s: #%s | invalidate chapter controls on 'timeupdate'", withChapterNavigation.name, this.element.id);
+                this.listenForEventOnce(playerVideo, "timeupdate", () => {
+                    console.debug("%s: #%s | timeupdate | currentTime=%d", withChapterNavigation.name, this.element.id, this.videoElement.currentTime);
+                    this.invalidateChapterControls();
+                });
+            }
+            console.debug("%s: #%s | invalidated chapter controls", withChapterNavigation.name, this.element.id);
+        }
+
+        listenForEventOnce(element, eventName, callback) {
+            element.addEventListener(
+                eventName,
+                () => { 
+                    console.debug("%s: #%s | eventName", withChapterNavigation.name, this.element.id);
+                    callback(); 
+                },
+                { once: true }
+            );
+        }
+
+        updateChapterControls() {
+            console.debug("%s: #%s | updating chapter controls...", withChapterNavigation.name, this.element.id);
             const prevButton = this.element.querySelector(".ytp-chapter-button-prev");
             if (prevButton) {
                 prevButton.disabled = !this.prevChapterLink;
@@ -235,7 +255,7 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
                 nextButton.disabled = !this.nextChapterLink;
                 console.debug("%s: #%s | next=%s", withChapterNavigation.name, this.element.id, !nextButton.disabled);
             }
-            console.debug("%s: #%s | invalidated chapter controls", withChapterNavigation.name, this.element.id);
+            console.debug("%s: #%s | updated chapter controls", withChapterNavigation.name, this.element.id);
         }
 
         onRuntimeMessage(request) {
