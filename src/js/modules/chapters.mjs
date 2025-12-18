@@ -14,7 +14,7 @@ export class YTChapterList {
         this.#containerElementQuerySelector = `${this.#containerParams.tagName}`;
         if (this.#containerParams.attrName) {
             // prettier-ignore
-            this.#containerElementQuerySelector += `[${this.#containerParams.attrName}='${this.#containerParams.attrValue}']`;
+            this.#containerElementQuerySelector += `[${this.#containerParams.attrName}^='${this.#containerParams.attrValue}']`;
         }
         this.#containerElementQuerySelector += ` #${this.#containerParams.containerId}`;
     }
@@ -43,7 +43,7 @@ export class YTChapterList {
             const attrValue = this.#containerParams.attrValue;
             await nodeAddedAsync(
                 document, 
-                (node) => node.tagName === tagName && (!attrName || node.attributes[attrName].value === attrValue)
+                (node) => node.tagName === tagName && (!attrName || node.attributes[attrName].value.startsWith(attrValue))
             );
             container = this.containerElement;
             console.debug(`${YTChapterList.name}: ${this.#containerElementQuerySelector} | container node added`);

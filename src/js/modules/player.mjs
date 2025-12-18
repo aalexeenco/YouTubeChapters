@@ -279,7 +279,7 @@ export class YTMainPlayer extends withChapterNavigation(withChapterOverlay(YTPla
             { 
                 tagName: "ytd-macro-markers-list-renderer",
                 attrName: "panel-target-id",
-                attrValue: "engagement-panel-macro-markers-description-chapters",
+                attrValue: "engagement-panel-macro-markers",
                 containerId: "contents"
             }
         );
