@@ -224,10 +224,7 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
                 this.updateChapterControls();
             } else {
                 console.debug("%s: #%s | invalidate chapter controls on 'timeupdate'", withChapterNavigation.name, this.element.id);
-                this.listenForEventOnce(playerVideo, "timeupdate", () => {
-                    console.debug("%s: #%s | timeupdate | currentTime=%d", withChapterNavigation.name, this.element.id, this.videoElement.currentTime);
-                    this.invalidateChapterControls();
-                });
+                this.listenForEventOnce(playerVideo, "timeupdate", () => { this.invalidateChapterControls(); });
             }
             console.debug("%s: #%s | invalidated chapter controls", withChapterNavigation.name, this.element.id);
         }
@@ -236,7 +233,7 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
             element.addEventListener(
                 eventName,
                 () => { 
-                    console.debug("%s: #%s | eventName", withChapterNavigation.name, this.element.id);
+                    console.debug("%s: #%s | %s", withChapterNavigation.name, this.element.id, eventName);
                     callback(); 
                 },
                 { once: true }

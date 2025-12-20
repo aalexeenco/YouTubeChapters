@@ -74,3 +74,9 @@ test("When there are no chapter links in the container, then empty array is retu
 
     expect(actualChapters).toHaveLength(0);
 });
+
+test("When the container is null, then throws", () => {
+    expect(() => {
+        parseChapters(null); 
+    }).toThrow();
+});

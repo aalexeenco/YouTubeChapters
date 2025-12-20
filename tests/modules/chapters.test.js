@@ -6,6 +6,8 @@ import {
     by,
     expecting,
     not,
+    timeoutWhile,
+    waitingFor,
     toBeInTheDocument,
     toHaveBeenCalled,
     toHaveBeenCalledWith,
@@ -14,9 +16,9 @@ import {
 const CHAPTERS_CONTAINER_ID = "container-id";
 const CHAPTERS_CONTAINER_TEST_ID = "container-test-id";
 const CHAPTERS_CONTAINER_PARAMS = { 
-    tagName: "chapters",
+    tagName: "chapters-list",
     attrName: "test-attr",
-    attrValue: "test",
+    attrValue: "test-attr-value",
     containerId: CHAPTERS_CONTAINER_ID
  };
 
@@ -139,6 +141,23 @@ describe("YTChapterList unit tests", () => {
                         expect(callbackMock).toHaveBeenCalled();
                     });
                 });
+
+                test("When container node is removed later, then chapters are not parsed and callback is called eventually", async () => {
+                    callbackMock.mockClear();
+                    parseChaptersSpy.mockClear();
+                    const initAsyncSpy = jest.spyOn(chapterList, chapterList.initAsync.name);
+
+                    chapterList.containerElement.textContent = "Changed, but subsequently removed from the DOM!";
+                    chapterList.containerElement.remove();
+
+                    await timeoutWhile(waitingFor(parseChaptersSpy))(toHaveBeenCalled);
+
+                    await waitFor(() => {
+                        expect(chapterList.containerElement).not.toBeInTheDocument();
+                        expect(callbackMock).toHaveBeenCalled();
+                        expect(initAsyncSpy).toHaveBeenCalled();
+                    });
+                });
             });
         });
     });
@@ -226,6 +245,23 @@ describe("YTChapterList unit tests", () => {
                 await waitFor(() => {
                     expect(parseChaptersSpy).toHaveBeenCalledWith(chapterList.containerElement);
                     expect(callbackMock).toHaveBeenCalled();
+                });
+            });
+
+            test("When container node is removed later, then chapters are not parsed and callback is called eventually", async () => {
+                callbackMock.mockClear();
+                parseChaptersSpy.mockClear();
+                const initAsyncSpy = jest.spyOn(chapterList, chapterList.initAsync.name);
+
+                chapterList.containerElement.textContent = "Changed, but subsequently removed from the DOM!";
+                chapterList.containerElement.remove();
+
+                await timeoutWhile(waitingFor(parseChaptersSpy))(toHaveBeenCalled);
+
+                await waitFor(() => {
+                    expect(chapterList.containerElement).not.toBeInTheDocument();
+                    expect(callbackMock).toHaveBeenCalled();
+                    expect(initAsyncSpy).toHaveBeenCalled();
                 });
             });
         });

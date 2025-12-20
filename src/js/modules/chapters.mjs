@@ -22,10 +22,8 @@ export class YTChapterList {
     #setChapters(chapters) {
         console.debug(`${YTChapterList.name}: ${this.#containerElementQuerySelector} | set chapters`);
         console.debug(chapters);
-        if (chapters.length > 0 || this.#chapters.length > 0) {
-            this.#chapters = chapters;
-            this.onChapterListChanged?.();
-        }
+        this.#chapters = chapters;
+        this.onChapterListChanged?.();
     }
 
     get containerElement() {
@@ -50,7 +48,14 @@ export class YTChapterList {
         }
         this.#setChapters(YTChapterList.parseChapters(container));
         const chaptersParsingObserver = new MutationObserver(() => {
-            this.#setChapters(YTChapterList.parseChapters(this.containerElement));
+            if (this.containerElement) {
+                console.debug(`${YTChapterList.name}: ${this.#containerElementQuerySelector} | container node mutated`);
+                this.#setChapters(YTChapterList.parseChapters(this.containerElement));
+            } else {
+                console.debug(`${YTChapterList.name}: ${this.#containerElementQuerySelector} | container node removed`);
+                this.#setChapters([]);
+                this.initAsync();
+            }
         });
         chaptersParsingObserver.observe(container, { childList: true, subtree: true });
         console.log(`${YTChapterList.name}: ${this.#containerElementQuerySelector} | initialized`);
