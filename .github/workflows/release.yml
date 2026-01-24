@@ -10,11 +10,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3.8.1
+      - name: Use Node.js 18
+        uses: actions/setup-node@v4
         with:
           node-version: 18
-      - uses: actions/checkout@v3
+          cache: 'npm'
+      - uses: actions/checkout@v4
       - name: Lint and test
         run: | 
           npm ci
