@@ -14,12 +14,12 @@ describe("Chapters are parsed from the chapters panel", () => {
         <div>
             New <a href="http://youtube.com?watch?v=abc&=34" />video</a> is out!
 
-            ${ytChapterLinkHtml(0, "00:00", "Chapter 1.", videoPageURI)}
-            ${ytChapterLinkHtml(60, "01:00", "Chapter 11.", videoPageURI)}
-            ${ytChapterLinkHtml(125, "02:05", "Chapter 4.", videoPageURI)}
-            ${ytChapterLinkHtml(366, "03:06", "Chapter 2.", videoPageURI)}
-            ${ytChapterLinkHtml(3612, "01:00:12", "Chapter 5.", videoPageURI)}
-            ${ytChapterLinkHtml(3735, "01:02:05", "Chapter 3.", videoPageURI)}
+            ${ytChapterLinkHtml(0, "0:00", "Chapter 1.", videoPageURI)}
+            ${ytChapterLinkHtml(60, "1:00", "Chapter 11.", videoPageURI)}
+            ${ytChapterLinkHtml(125, "2:05", "Chapter 4.", videoPageURI)}
+            ${ytChapterLinkHtml(366, "3:06", "Chapter 2.", videoPageURI)}
+            ${ytChapterLinkHtml(3612, "1:00:12", "Chapter 5.", videoPageURI)}
+            ${ytChapterLinkHtml(3735, "1:02:05", "Chapter 3.", videoPageURI)}
 
             Please, subscribe to my channel!
             <a href="http://youtube.com?search?q=peace" />
@@ -53,7 +53,7 @@ describe("Chapters are parsed from the chapters panel", () => {
     }
 
     test("When baseURI is uncanonical, then all chapters are parsed", () => {
-        document.head.innerHTML = `<base href="https://www.youtube.com/watch?app=desktop&v=test&ch=a&from=ie#b" />`;
+        document.head.innerHTML = `<base href="https://www.youtube.com/watch?app=desktop&v=test&t=10s&ch=a&from=ie#b" />`;
 
         const actualChapters = parseChapters(container);
 
@@ -73,4 +73,10 @@ test("When there are no chapter links in the container, then empty array is retu
     const actualChapters = parseChapters(container);
 
     expect(actualChapters).toHaveLength(0);
+});
+
+test("When the container is null, then throws", () => {
+    expect(() => {
+        parseChapters(null); 
+    }).toThrow();
 });

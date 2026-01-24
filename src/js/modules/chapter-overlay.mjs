@@ -15,7 +15,7 @@ export class YTPlayerChapterOverlay {
         const overlayContainer = document.createElement("div");
         overlayContainer.setAttribute(
             "class",
-            "ytp-player-content ytp-chapter-title-overlay-container"
+            "ytp-chapter-title-overlay-container"
         );
 
         this.element.appendChild(overlayContainer);

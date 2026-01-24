@@ -14,7 +14,7 @@ export class YTPlayer {
     }
 
     get chapterTitleElement() {
-        return this.element?.querySelector(".ytp-chapter-title-content");
+        return this.element?.querySelector("button.ytp-chapter-title:not(.ytp-chapter-button) > .ytp-chapter-title-content");
     }
 
     get chapterTitle() {
@@ -55,6 +55,10 @@ export class YTPlayer {
 
 export const withChapterOverlay = (YTPlayer) =>
     class extends YTPlayer {
+        get overlayContainerElement() {
+            return this.element?.querySelector(".ytp-overlay-bottom-left");
+        }
+
         async initAsync() {
             await super.initAsync();
             console.debug("%s: #%s | initializing...", withChapterOverlay.name, this.element?.id);
@@ -69,7 +73,7 @@ export const withChapterOverlay = (YTPlayer) =>
             console.debug("%s: #%s | display overlay '%s'", withChapterOverlay.name, this.element?.id, chapterTitleText);
             if (!this.overlay) {
                 this.overlay = new YTPlayerChapterOverlay();
-                this.element.appendChild(this.overlay.element);
+                this.overlayContainerElement.appendChild(this.overlay.element);
             }
 
             this.overlay.chapterTitle = chapterTitleText;
@@ -125,16 +129,7 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
                 this.addChapterControls();
             }
 
-            const playerVideo = this.videoElement;
-            if (chapterTitleAdded || !playerVideo.paused) {
-                this.invalidateChapterControls();
-            } else {
-                playerVideo.addEventListener(
-                    "seeked",
-                    () => this.invalidateChapterControls(),
-                    { once: true }
-                );
-            }
+            this.invalidateChapterControls();
         }
 
         addChapterControls() {
@@ -144,31 +139,35 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
             );
             chapterTitleContainer.insertAdjacentHTML(
                 "beforebegin",
-                `<span>
-                <button class="ytp-button ytp-chapter-button ytp-chapter-button-prev" 
-                    title="Previous Chapter" aria-label="Previous Chapter" data-controltype="previous" disabled>
-                    <svg height="100%" version="1.1" viewBox="0 0 36 36" width="100%">
-                        <use class="ytp-svg-shadow" xlink:href="#yt_id_01"></use>
-                        <path class="ytp-svg-fill" d="M 24,24 16,18 24,12 V 24 z" 
-                            id="yt_id_01">
-                        </path>
-                    </svg>
-                </button>
-            </span>`
+                `
+                <div class="ytp-chapter-container ytp-chapter-control">
+                    <button class="ytp-chapter-title ytp-button ytp-chapter-button ytp-chapter-button-prev" 
+                        title="Previous Chapter" aria-label="Previous Chapter" data-controltype="previous" disabled>
+                        <div class="ytp-chapter-title-chevron">
+                            <svg height="100%" viewBox="0 0 24 24" width="100%">
+                                <path d="M14.29 18.71 l1.42-1.42 -5.3-5.29 5.3-5.29 -1.42-1.42 -6.7 6.71 z" fill="#fff"></path>
+                            </svg>
+                        </div>
+                        <div class="ytp-chapter-title-content">Prev</div>
+                    </button>
+                </div>
+                `
             );
             chapterTitleContainer.insertAdjacentHTML(
                 "beforebegin",
-                `<span>
-                <button class="ytp-button ytp-chapter-button ytp-chapter-button-next" 
-                    title="Next Chapter" aria-label="Next Chapter" data-controltype="next" disabled>
-                    <svg height="100%" version="1.1" viewBox="0 0 36 36" width="100%">
-                        <use class="ytp-svg-shadow" xlink:href="#yt_id_02"></use>
-                        <path class="ytp-svg-fill" d="M 12,24 20,18 12,12 V 22 z" 
-                            id="yt_id_02">
-                        </path>
-                    </svg>
-                </button>
-            </span>`
+                `
+                <div class="ytp-chapter-container ytp-chapter-control">
+                    <button class="ytp-chapter-title ytp-button ytp-chapter-button ytp-chapter-button-next" 
+                        title="Next Chapter" aria-label="Next Chapter" data-controltype="next" disabled>
+                        <div class="ytp-chapter-title-content">Next</div>
+                        <div class="ytp-chapter-title-chevron">
+                            <svg height="100%" viewBox="0 0 24 24" width="100%">
+                                <path d="M9.71 18.71l-1.42-1.42 5.3-5.29-5.3-5.29 1.42-1.42 6.7 6.71z" fill="#fff"></path>
+                            </svg>
+                        </div>
+                    </button>
+                </div>
+                `
             );
 
             this.element
@@ -186,13 +185,14 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
         removeChapterControls() {
             console.debug("%s: #%s | remove chapter controls", withChapterNavigation.name, this.element.id);
             this.element
-                .querySelectorAll("button.ytp-chapter-button")
+                .querySelectorAll("div.ytp-chapter-control")
                 .forEach((btn) => btn.remove());
 
             chrome.runtime.onMessage.removeListener(this.#onRuntimeMessageCallback);
         }
 
-        onChapterControlButtonClick(button) {
+        onChapterControlButtonClick(target) {
+            const button = target.closest("button");
             const navigationDirection = button.attributes["data-controltype"].value;
             console.debug("%s: #%s | button(%s) clicked", withChapterNavigation.name, this.element.id, navigationDirection);
             this.navigateToChapter(navigationDirection);
@@ -216,6 +216,32 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
 
         invalidateChapterControls() {
             console.debug("%s: #%s | invalidating chapter controls...", withChapterNavigation.name, this.element.id);
+            const playerVideo = this.videoElement;
+            if (playerVideo.paused) {
+                console.debug("%s: #%s | update chapter controls on 'seek'", withChapterNavigation.name, this.element.id);
+                this.listenForEventOnce(playerVideo, "seeked", () => { this.updateChapterControls(); });
+            } else if (playerVideo.currentTime > 0) {
+                this.updateChapterControls();
+            } else {
+                console.debug("%s: #%s | invalidate chapter controls on 'timeupdate'", withChapterNavigation.name, this.element.id);
+                this.listenForEventOnce(playerVideo, "timeupdate", () => { this.invalidateChapterControls(); });
+            }
+            console.debug("%s: #%s | invalidated chapter controls", withChapterNavigation.name, this.element.id);
+        }
+
+        listenForEventOnce(element, eventName, callback) {
+            element.addEventListener(
+                eventName,
+                () => { 
+                    console.debug("%s: #%s | %s", withChapterNavigation.name, this.element.id, eventName);
+                    callback(); 
+                },
+                { once: true }
+            );
+        }
+
+        updateChapterControls() {
+            console.debug("%s: #%s | updating chapter controls...", withChapterNavigation.name, this.element.id);
             const prevButton = this.element.querySelector(".ytp-chapter-button-prev");
             if (prevButton) {
                 prevButton.disabled = !this.prevChapterLink;
@@ -226,7 +252,7 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
                 nextButton.disabled = !this.nextChapterLink;
                 console.debug("%s: #%s | next=%s", withChapterNavigation.name, this.element.id, !nextButton.disabled);
             }
-            console.debug("%s: #%s | invalidated chapter controls", withChapterNavigation.name, this.element.id);
+            console.debug("%s: #%s | updated chapter controls", withChapterNavigation.name, this.element.id);
         }
 
         onRuntimeMessage(request) {
@@ -245,6 +271,14 @@ export class YTChannelPlayer extends withChapterOverlay(YTPlayer) {
 
 export class YTMainPlayer extends withChapterNavigation(withChapterOverlay(YTPlayer), YTChapterList) {
     constructor() {
-        super("movie_player", { tagName: "ytd-watch-flexy", containerId: "panels" });
+        super(
+            "movie_player", 
+            { 
+                tagName: "ytd-macro-markers-list-renderer",
+                attrName: "panel-target-id",
+                attrValue: "engagement-panel-macro-markers",
+                containerId: "contents"
+            }
+        );
     }
 }

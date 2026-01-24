@@ -1,12 +1,9 @@
-.ytp-player-content.ytp-chapter-title-overlay-container {
-    left: 12px;
-    right: 12px;
+.ytp-chapter-button:disabled {
+    color: gray;
 }
 
-.ytp-autohide:not(.ytp-ad-overlay-open) .ytp-chapter-title-overlay-container,
-.ytp-hide-controls .ytp-chapter-title-overlay-container,
-.ytp-autohide .ytp-chapter-title-overlay-container {
-    bottom: 12px;
+.ytp-chapter-button:disabled svg path {
+    stroke: gray;
 }
 
 .ytp-chapter-title-overlay {
@@ -17,6 +14,7 @@
     color: #fff;
     padding: 1em;
     font-size: 1.5em;
+    max-width: 60%;
     z-index: 28;
     opacity: 0;
     transform: scaleX(0);

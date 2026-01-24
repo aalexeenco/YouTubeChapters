@@ -6,6 +6,8 @@ import {
     by,
     expecting,
     not,
+    timeoutWhile,
+    waitingFor,
     toBeInTheDocument,
     toHaveBeenCalled,
     toHaveBeenCalledWith,
@@ -14,9 +16,9 @@ import {
 const CHAPTERS_CONTAINER_ID = "container-id";
 const CHAPTERS_CONTAINER_TEST_ID = "container-test-id";
 const CHAPTERS_CONTAINER_PARAMS = { 
-    tagName: "chapters",
+    tagName: "chapters-list",
     attrName: "test-attr",
-    attrValue: "test",
+    attrValue: "test-attr-value",
     containerId: CHAPTERS_CONTAINER_ID
  };
 
@@ -39,9 +41,9 @@ describe("YTChapterList unit tests", () => {
         jest.resetAllMocks();
     });
 
-    describe("Videо description node is not in the DOM yet", () => {
+    describe("Chapter list container node is not in the DOM yet", () => {
         test(
-            "Chapter container element is null",
+            "Chapter list container element is null",
             by(expecting(chapterListContainerElement), not(toBeInTheDocument))
         );
 
@@ -74,7 +76,7 @@ describe("YTChapterList unit tests", () => {
                 await expectTimeout(chapterListInitialization);
             });
 
-            describe("Video description node is added to the DOM afterwards and initialization is complete", () => {
+            describe("Chapter list container node is added to the DOM afterwards and initialization is complete", () => {
                 const parsedChapters = [
                     { t: 0, anchor: { id: "link1" } },
                     { t: 10, anchor: { id: "link2" } },
@@ -139,11 +141,28 @@ describe("YTChapterList unit tests", () => {
                         expect(callbackMock).toHaveBeenCalled();
                     });
                 });
+
+                test("When container node is removed later, then chapters are not parsed and callback is called eventually", async () => {
+                    callbackMock.mockClear();
+                    parseChaptersSpy.mockClear();
+                    const initAsyncSpy = jest.spyOn(chapterList, chapterList.initAsync.name);
+
+                    chapterList.containerElement.textContent = "Changed, but subsequently removed from the DOM!";
+                    chapterList.containerElement.remove();
+
+                    await timeoutWhile(waitingFor(parseChaptersSpy))(toHaveBeenCalled);
+
+                    await waitFor(() => {
+                        expect(chapterList.containerElement).not.toBeInTheDocument();
+                        expect(callbackMock).toHaveBeenCalled();
+                        expect(initAsyncSpy).toHaveBeenCalled();
+                    });
+                });
             });
         });
     });
 
-    describe("Video description node is in the DOM already", () => {
+    describe("Chapter list container node is in the DOM already", () => {
         beforeEach(() => {
             document.body.insertAdjacentHTML(
                 "afterbegin",
@@ -157,7 +176,7 @@ describe("YTChapterList unit tests", () => {
             );
         });
 
-        test("Chapter container element is the DOM element with the given id", () => {
+        test("Chapter list container element is the DOM element with the given id", () => {
             expect(chapterList.containerElement).toBeDefined();
             expect(chapterList.containerElement.id).toBe(CHAPTERS_CONTAINER_ID);
             expect(chapterList.containerElement).toBe(
@@ -201,6 +220,7 @@ describe("YTChapterList unit tests", () => {
             test.each([
                 [0, 0, parsedChapters[1], undefined],
                 [6, 0, parsedChapters[1], undefined],
+                [10, 1, parsedChapters[2], parsedChapters[0]],
                 [11, 1, parsedChapters[2], parsedChapters[0]],
                 [20, 2, parsedChapters[3], parsedChapters[1]],
                 [21, 2, parsedChapters[3], parsedChapters[1]],
@@ -225,6 +245,23 @@ describe("YTChapterList unit tests", () => {
                 await waitFor(() => {
                     expect(parseChaptersSpy).toHaveBeenCalledWith(chapterList.containerElement);
                     expect(callbackMock).toHaveBeenCalled();
+                });
+            });
+
+            test("When container node is removed later, then chapters are not parsed and callback is called eventually", async () => {
+                callbackMock.mockClear();
+                parseChaptersSpy.mockClear();
+                const initAsyncSpy = jest.spyOn(chapterList, chapterList.initAsync.name);
+
+                chapterList.containerElement.textContent = "Changed, but subsequently removed from the DOM!";
+                chapterList.containerElement.remove();
+
+                await timeoutWhile(waitingFor(parseChaptersSpy))(toHaveBeenCalled);
+
+                await waitFor(() => {
+                    expect(chapterList.containerElement).not.toBeInTheDocument();
+                    expect(callbackMock).toHaveBeenCalled();
+                    expect(initAsyncSpy).toHaveBeenCalled();
                 });
             });
         });

@@ -38,6 +38,7 @@ describe("Player chapter navigation mixin unit tests", () => {
     let player;
     let invalidateChapterControlsSpy;
     let navigateToChapterSpy;
+    let updateChapterControlsSpy;
 
     beforeEach(() => {
         document.body.innerHTML = `<div>${html.ytPlayerHtml({ playerId: PLAYER_ID })}</div>`;
@@ -47,8 +48,10 @@ describe("Player chapter navigation mixin unit tests", () => {
         videoClientHeightSpy = jest.spyOn(player.videoElement, "clientHeight", "get");
         videoCurrentTimeSpy = jest.spyOn(player.videoElement, "currentTime", "get");
 
-        invalidateChapterControlsSpy = jest.spyOn(player, player.invalidateChapterControls.name);
+        invalidateChapterControlsSpy = 
+            jest.spyOn(player, player.invalidateChapterControls.name);
         navigateToChapterSpy = jest.spyOn(player, player.navigateToChapter.name);
+        updateChapterControlsSpy = jest.spyOn(player, player.updateChapterControls.name);
     });
 
     afterEach(() => {
@@ -75,7 +78,7 @@ describe("Player chapter navigation mixin unit tests", () => {
         expect(chapterListMock.initAsync).toHaveBeenCalledTimes(1);
     });
 
-    test("Next chapter link is found in the chapter list by the current time of the video element", () => {
+    test("Next chapter link is findable in the list given the video element current time", () => {
         const videoTime = 42;
         videoCurrentTimeSpy.mockReturnValueOnce(videoTime);
         const expectedAnchor = {};
@@ -87,7 +90,7 @@ describe("Player chapter navigation mixin unit tests", () => {
         expect(actualAnchor).toBe(expectedAnchor);
     });
 
-    test("Previous chapter link is found in the chapter list by the current time of the video element", () => {
+    test("Previous chapter link is finndable in the list given the video element current time", () => {
         const videoTime = 52;
         videoCurrentTimeSpy.mockReturnValueOnce(videoTime);
         const expectedAnchor = {};
@@ -157,7 +160,50 @@ describe("Player chapter navigation mixin unit tests", () => {
         expect(navigateToChapterSpy).toHaveBeenNthCalledWith(2, request2.navigationDirection);
     });
 
-    describe("Add chapter navigation controls", () => {
+    test("When video is paused then invalidating chapter controls will update controls on video 'seeked' event", () => {
+        jest.spyOn(player.videoElement, "paused", "get").mockReturnValueOnce(true);
+        const videoAddEventListenerSpy = jest
+            .spyOn(player.videoElement, "addEventListener")
+            .mockImplementation(() => {});
+
+        player.invalidateChapterControls();
+
+        expect(updateChapterControlsSpy).not.toHaveBeenCalled();
+        expect(videoAddEventListenerSpy).toHaveBeenCalledWith("seeked", expect.any(Function), { once: true });
+    });
+
+    test("When video is not paused and is buffering then invalidating chapter controls will invalidate controls on video 'timeupdate' event", () => {
+        jest.spyOn(player.videoElement, "paused", "get").mockReturnValueOnce(false);
+        videoCurrentTimeSpy.mockReturnValueOnce(0);
+        const videoAddEventListenerSpy = jest
+            .spyOn(player.videoElement, "addEventListener")
+            .mockImplementation(() => {});
+
+        player.invalidateChapterControls();
+
+        expect(updateChapterControlsSpy).not.toHaveBeenCalled();
+        expect(videoAddEventListenerSpy).toHaveBeenCalledWith("timeupdate", expect.any(Function), { once: true });
+
+        videoAddEventListenerSpy.mock.calls[0][1]();
+
+        expect(invalidateChapterControlsSpy).toHaveBeenCalled();
+        expect(updateChapterControlsSpy).not.toHaveBeenCalled();
+    });
+
+    test("When video is not paused and not buffering then invalidating chapter controls will update controls synchronously", () => {
+        jest.spyOn(player.videoElement, "paused", "get").mockReturnValueOnce(false);
+        videoCurrentTimeSpy.mockReturnValueOnce(12);
+        const videoAddEventListenerSpy = jest
+            .spyOn(player.videoElement, "addEventListener")
+            .mockImplementation(() => {});
+
+        player.invalidateChapterControls();
+
+        expect(updateChapterControlsSpy).toHaveBeenCalled();
+        expect(videoAddEventListenerSpy).not.toHaveBeenCalled();
+    });
+
+    describe("Given chapter navigation controls are added", () => {
         beforeEach(() => {
             player.addChapterControls();
         });
@@ -197,38 +243,38 @@ describe("Player chapter navigation mixin unit tests", () => {
             expect(onRuntimeMessageSpy).toHaveBeenCalledWith(request);
         });
 
-        test("Invalidating chapter controls will enable 'Previous Chapter' button if previous chapter link exists", () => {
+        test("Chapter controls update will enable 'Previous Chapter' button if previous chapter link exists", () => {
             jest.spyOn(player, "prevChapterLink", "get").mockImplementationOnce(() => {
                 return {};
             });
 
-            player.invalidateChapterControls();
+            player.updateChapterControls();
 
             expect(prevChapterButton()).toBeEnabled();
         });
 
-        test("Invalidating chapter controls will disable 'Previous Chapter' button if previous chapter link is undefined", () => {
+        test("Chapter controls update will disable 'Previous Chapter' button if previous chapter link is undefined", () => {
             jest.spyOn(player, "prevChapterLink", "get").mockImplementationOnce(() => undefined);
 
-            player.invalidateChapterControls();
+            player.updateChapterControls();
 
             expect(prevChapterButton()).toBeDisabled();
         });
 
-        test("Invalidating chapter controls will enable 'Next Chapter' button if next chapter link exists", () => {
+        test("Chapter controls update will enable 'Next Chapter' button if next chapter link exists", () => {
             jest.spyOn(player, "nextChapterLink", "get").mockImplementationOnce(() => {
                 return {};
             });
 
-            player.invalidateChapterControls();
+            player.updateChapterControls();
 
             expect(nextChapterButton()).toBeEnabled();
         });
 
-        test("Invalidating chapter controls will disable 'Next Chapter' button if next chapter link is undefined", () => {
+        test("Chapter controls update will disable 'Next Chapter' button if next chapter link is undefined", () => {
             jest.spyOn(player, "nextChapterLink", "get").mockImplementationOnce(() => undefined);
 
-            player.invalidateChapterControls();
+            player.updateChapterControls();
 
             expect(nextChapterButton()).toBeDisabled();
         });
