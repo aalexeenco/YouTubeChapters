@@ -11,6 +11,7 @@
     "permissions": ["notifications", "storage"],
     "host_permissions": ["*://*.youtube.com/*"],
     "background": {
+      "scripts": ["background.js"],
       "service_worker": "background.js"
     },
     "content_scripts": [
@@ -27,8 +28,7 @@
       }
     ],
     "options_ui": {
-      "page": "options/options.html",
-      "browser_style": true
+      "page": "options/options.html"
     },
     "commands": {
       "next-chapter": {
