@@ -141,7 +141,7 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
                 "beforebegin",
                 `
                 <div class="ytp-chapter-container ytp-chapter-control">
-                    <button class="ytp-chapter-title ytp-button ytp-chapter-button ytp-chapter-button-prev" 
+                    <button class="ytp-chapter-title ytp-button ytp-chapter-button ytp-chapter-button-prev ytp-autohide-fade-transition" 
                         title="Previous Chapter" aria-label="Previous Chapter" data-controltype="previous" disabled>
                         <div class="ytp-chapter-title-chevron">
                             <svg height="100%" viewBox="0 0 24 24" width="100%">
@@ -157,7 +157,7 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
                 "beforebegin",
                 `
                 <div class="ytp-chapter-container ytp-chapter-control">
-                    <button class="ytp-chapter-title ytp-button ytp-chapter-button ytp-chapter-button-next" 
+                    <button class="ytp-chapter-title ytp-button ytp-chapter-button ytp-chapter-button-next ytp-autohide-fade-transition" 
                         title="Next Chapter" aria-label="Next Chapter" data-controltype="next" disabled>
                         <div class="ytp-chapter-title-content">Next</div>
                         <div class="ytp-chapter-title-chevron">

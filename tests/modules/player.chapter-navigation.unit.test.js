@@ -216,6 +216,11 @@ describe("Player chapter navigation mixin unit tests", () => {
             expect(nextChapterButton()).toBeDisabled();
         });
 
+        test("Chapter navigation buttons have auto hide class", () => {
+            expect(prevChapterButton()).toHaveClass("ytp-autohide-fade-transition");
+            expect(nextChapterButton()).toHaveClass("ytp-autohide-fade-transition");
+        });
+
         test("Clicking on the 'Next Chapter'/'Previous Chapter' buttons will navigate to the next/previous chapter respectively", () => {
             prevChapterButton().disabled = false;
             prevChapterButton().click();
