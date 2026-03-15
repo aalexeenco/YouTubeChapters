@@ -160,6 +160,18 @@ describe("Player chapter navigation mixin unit tests", () => {
         expect(navigateToChapterSpy).toHaveBeenNthCalledWith(2, request2.navigationDirection);
     });
 
+    test("When video is paused (e.g. autoplay is disabled) then invalidating chapter controls will update controls on video 'play' event", () => {
+        jest.spyOn(player.videoElement, "paused", "get").mockReturnValueOnce(true);
+        const videoAddEventListenerSpy = jest
+            .spyOn(player.videoElement, "addEventListener")
+            .mockImplementation(() => {});
+
+        player.invalidateChapterControls();
+
+        expect(updateChapterControlsSpy).not.toHaveBeenCalled();
+        expect(videoAddEventListenerSpy).toHaveBeenCalledWith("play", expect.any(Function), { once: true });
+    });
+
     test("When video is paused then invalidating chapter controls will update controls on video 'seeked' event", () => {
         jest.spyOn(player.videoElement, "paused", "get").mockReturnValueOnce(true);
         const videoAddEventListenerSpy = jest

@@ -220,6 +220,8 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
             if (playerVideo.paused) {
                 console.debug("%s: #%s | update chapter controls on 'seek'", withChapterNavigation.name, this.element.id);
                 this.listenForEventOnce(playerVideo, "seeked", () => { this.updateChapterControls(); });
+                console.debug("%s: #%s | update chapter controls on 'play'", withChapterNavigation.name, this.element.id);
+                this.listenForEventOnce(playerVideo, "play", () => { this.updateChapterControls(); });
             } else if (playerVideo.currentTime > 0) {
                 this.updateChapterControls();
             } else {
