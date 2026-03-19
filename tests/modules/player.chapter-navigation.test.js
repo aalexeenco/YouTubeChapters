@@ -5,9 +5,7 @@ import * as html from "../test-html.mjs";
 import {
     by,
     expecting,
-    not,
     waitingFor,
-    timeoutWhile,
     toBeEmptyDOMElement,
     toHaveBeenCalled,
 } from "../jest-enfluenter.mjs";
@@ -35,14 +33,17 @@ describe("Player chapter navigation mixin functional tests", () => {
     const playerChapterTitleElement = () => player.chapterTitleElement;
     let addChapterControlsSpy;
     const addChapterControls = () => addChapterControlsSpy;
-    let removeChapterControlsSpy;
+    let hideChapterControlsSpy;
+    let showChapterControlsSpy;
+    const showChapterControls = () => showChapterControlsSpy;
 
     beforeEach(() => {
         document.body.innerHTML = `<div><div id="anotherPlayer"><video /></div></div>`;
 
         player = new TestPlayer();
         addChapterControlsSpy = jest.spyOn(player, player.addChapterControls.name);
-        removeChapterControlsSpy = jest.spyOn(player, player.removeChapterControls.name);
+        hideChapterControlsSpy = jest.spyOn(player, player.hideChapterControls.name);
+        showChapterControlsSpy = jest.spyOn(player, player.showChapterControls.name);
     });
 
     afterEach(() => {
@@ -55,11 +56,6 @@ describe("Player chapter navigation mixin functional tests", () => {
         beforeEach(() => {
             playerInitialization = player.initAsync();
         });
-
-        test(
-            "Chapter navigation controls are not added yet",
-            by(timeoutWhile(waitingFor(addChapterControls)), toHaveBeenCalled)
-        );
 
         describe("Player node is added to the DOM afterwards", () => {
             beforeEach(async () => {
@@ -76,33 +72,25 @@ describe("Player chapter navigation mixin functional tests", () => {
                 by(expecting(playerChapterTitleElement), toBeEmptyDOMElement)
             );
 
-            test(
-                "Player has no navigation controls yet",
-                by(expecting(addChapterControls), not(toHaveBeenCalled))
-            );
-
             describe("Chapter title text content is then changed to a non-empty value", () => {
                 beforeEach(async () => {
-                    addChapterControlsSpy.mockClear();
                     await changeChapterTitle(player.chapterTitleElement, "Chapter Title");
                 });
 
                 test(
-                    "Chapter navigation controls are added to the player",
-                    by(expecting(addChapterControls), toHaveBeenCalled)
+                    "Chapter navigation controls are shown",
+                    by(expecting(showChapterControls), toHaveBeenCalled)
                 );
 
-                describe("Given controls are added", () => {
+                describe("Given controls are visible", () => {
                     beforeEach(async () => {
-                        await waitingFor(addChapterControls)(toHaveBeenCalled);
-                        addChapterControlsSpy.mockClear();
+                        await waitingFor(showChapterControls)(toHaveBeenCalled);
                     });
 
-                    test("When chapter title content is cleared, then chapter navigation controls are removed", async () => {
+                    test("When chapter title content is cleared, then chapter navigation controls are hidden", async () => {
                         await changeChapterTitle(player.chapterTitleElement, null);
 
-                        expect(removeChapterControlsSpy).toHaveBeenCalled();
-                        expect(addChapterControlsSpy).not.toHaveBeenCalled();
+                        expect(hideChapterControlsSpy).toHaveBeenCalled();
                     });
                 });
             });
@@ -123,8 +111,8 @@ describe("Player chapter navigation mixin functional tests", () => {
         );
 
         test(
-            "Player has no chapter navigation controls",
-            by(expecting(addChapterControls), not(toHaveBeenCalled))
+            "Player has chapter navigation controls added",
+            by(expecting(addChapterControls), toHaveBeenCalled)
         );
 
         describe("Chapter title text content is then changed to a non-empty value", () => {
@@ -133,21 +121,19 @@ describe("Player chapter navigation mixin functional tests", () => {
             });
 
             test(
-                "Chapter navigation controls are added to the player",
-                by(expecting(addChapterControls), toHaveBeenCalled)
+                "Chapter navigation controls are shown",
+                by(expecting(showChapterControls), toHaveBeenCalled)
             );
 
-            describe("Given controls are added", () => {
+            describe("Given controls are visible", () => {
                 beforeEach(async () => {
-                    await waitingFor(addChapterControls)(toHaveBeenCalled);
-                    addChapterControlsSpy.mockClear();
+                    await waitingFor(showChapterControls)(toHaveBeenCalled);
                 });
 
-                test("When chapter title content is cleared afterwards, then chapter navigation controls are removed", async () => {
+                test("When chapter title content is cleared afterwards, then chapter navigation controls are hidden", async () => {
                     await changeChapterTitle(player.chapterTitleElement, null);
 
-                    expect(removeChapterControlsSpy).toHaveBeenCalled();
-                    expect(addChapterControlsSpy).not.toHaveBeenCalled();
+                    expect(hideChapterControlsSpy).toHaveBeenCalled();
                 });
             });
         });

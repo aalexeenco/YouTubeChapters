@@ -45,7 +45,7 @@ describe("Player chapter navigation mixin unit tests", () => {
         expect(TestChapterList.mock.instances.length).toBe(1);
     });
 
-    test("Chapter list callback notifies active chapter change", () => {
+    test("Handler is invoked on active chapter change via a callback", () => {
         const event = {};
         TestChapterList.mock.calls[0][1](event);
 
@@ -61,17 +61,28 @@ describe("Player chapter navigation mixin unit tests", () => {
         expect(chapterListMock.initAsync).toHaveBeenCalledTimes(1);
     });
 
+    test("Navigation controls are added on player initialization", async () => {
+        const addChapterControlsSpy = jest.spyOn(player, player.addChapterControls.name);
+        addChapterControlsSpy.mockImplementation(() => {});
+
+        await player.initAsync();
+
+        expect(addChapterControlsSpy).toHaveBeenCalledTimes(1);
+    });
+
     describe("Given chapter navigation controls are added", () => {
         beforeEach(() => {
             player.addChapterControls();
         });
 
-        test("Player element contains initially disabled 'Next chapter' and 'Previous chapter' buttons", () => {
+        test("Player element contains initially disabled and hidden 'Next chapter' and 'Previous chapter' buttons", () => {
             expect(player.element).toContainElement(prevChapterButton());
             expect(player.element).toContainElement(nextChapterButton());
 
-            expect(prevChapterButton()).toBeDisabled();
+            expect(prevChapterButton()).toBeDisabled()
+            expect(prevChapterButton()).not.toBeVisible();
             expect(nextChapterButton()).toBeDisabled();
+            expect(nextChapterButton()).not.toBeVisible();
         });
 
         test("Chapter navigation buttons have auto hide class", () => {
@@ -115,15 +126,20 @@ describe("Player chapter navigation mixin unit tests", () => {
             expect(nextChapterButton()).toBeDisabled();
         });
 
-        describe("Remove chapter navigation controls", () => {
-            beforeEach(() => {
-                player.removeChapterControls();
-            });
+        test("'Next chapter' and 'Previous chapter' buttons can be shown", () => {
+            player.showChapterControls();
 
-            test("'Next chapter' and 'Previous chapter' buttons are removed from the DOM", () => {
-                expect(player.element).not.toContainElement(prevChapterButton());
-                expect(player.element).not.toContainElement(nextChapterButton());
-            });
+            expect(nextChapterButton()).toBeVisible();
+            expect(prevChapterButton()).toBeVisible();
+        });
+
+        test("'Next chapter' and 'Previous chapter' buttons can be hidden", () => {
+            player.showChapterControls();
+
+            player.hideChapterControls();
+
+            expect(nextChapterButton()).not.toBeVisible();
+            expect(prevChapterButton()).not.toBeVisible();
         });
     });
 });

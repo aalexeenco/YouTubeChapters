@@ -104,10 +104,8 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
         async initAsync() {
             await super.initAsync();
             console.debug("%s: #%s | initializing...", withChapterNavigation.name, this.element?.id);
-            if (this.chapterTitle) {
-                this.addChapterControls();
-            }
-            this.#chapters.initAsync();
+            await this.#chapters.initAsync();
+            this.addChapterControls();
             console.debug("%s: #%s | initialized", withChapterNavigation.name, this.element?.id);
         }
 
@@ -115,7 +113,7 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
             super.onChapterChanged(mutations);
             console.debug("%s: #%s | chapter changed", withChapterNavigation.name, this.element?.id);
             if (this.chapterTitle === "") {
-                this.removeChapterControls();
+                this.hideChapterControls();
                 return;
             }
 
@@ -123,7 +121,7 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
                 mutations.length <= 1 ||
                 (mutations[0].removedNodes[0] ?? mutations[1].removedNodes[0]).textContent === "";
             if (chapterTitleAdded) {
-                this.addChapterControls();
+                this.showChapterControls();
             }
         }
 
@@ -135,7 +133,7 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
             chapterTitleContainer.insertAdjacentHTML(
                 "beforebegin",
                 `
-                <div class="ytp-chapter-container ytp-chapter-control">
+                <div class="ytp-chapter-container ytp-chapter-control" hidden>
                     <button class="ytp-chapter-title ytp-button ytp-chapter-button ytp-chapter-button-prev ytp-autohide-fade-transition" 
                         title="Previous chapter" aria-label="Previous Chapter" data-controltype="previous" disabled>
                         <div class="ytp-chapter-title-chevron">
@@ -151,7 +149,7 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
             chapterTitleContainer.insertAdjacentHTML(
                 "beforebegin",
                 `
-                <div class="ytp-chapter-container ytp-chapter-control">
+                <div class="ytp-chapter-container ytp-chapter-control" hidden>
                     <button class="ytp-chapter-title ytp-button ytp-chapter-button ytp-chapter-button-next ytp-autohide-fade-transition" 
                         title="Next chapter" aria-label="Next Chapter" data-controltype="next" disabled>
                         <div class="ytp-chapter-title-content">Next</div>
@@ -174,11 +172,18 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
                 );
         }
 
-        removeChapterControls() {
-            console.debug("%s: #%s | remove chapter controls", withChapterNavigation.name, this.element.id);
+        hideChapterControls() {
+            console.debug("%s: #%s | hide chapter controls", withChapterNavigation.name, this.element.id);
             this.element
                 .querySelectorAll("div.ytp-chapter-control")
-                .forEach((btn) => btn.remove());
+                .forEach((el) => el.hidden = true);
+        }
+
+        showChapterControls() {
+            console.debug("%s: #%s | show chapter controls", withChapterNavigation.name, this.element.id);
+            this.element
+                .querySelectorAll("div.ytp-chapter-control")
+                .forEach((el) => el.hidden = false);
         }
 
         onChapterControlButtonClick(target) {
