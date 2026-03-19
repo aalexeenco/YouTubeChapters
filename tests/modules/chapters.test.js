@@ -1,16 +1,14 @@
 import { jest } from "@jest/globals";
 import { YTChapterList } from "js/modules/chapters.mjs";
+import { ytChapterLinkHtml } from "./../test-html.mjs";
 import { expectTimeout } from "./../test-utils.mjs";
 import { screen, waitFor } from "./../testing-library-dom.mjs";
 import {
     by,
     expecting,
     not,
-    timeoutWhile,
-    waitingFor,
     toBeInTheDocument,
     toHaveBeenCalled,
-    toHaveBeenCalledWith,
 } from "../jest-enfluenter.mjs";
 
 const CHAPTERS_CONTAINER_ID = "container-id";
@@ -22,18 +20,75 @@ const CHAPTERS_CONTAINER_PARAMS = {
     containerId: CHAPTERS_CONTAINER_ID
  };
 
+describe("YTChapterList chapter navigation", () => {
+    let chapterList;
+
+    beforeEach(() => {
+        document.body.insertAdjacentHTML(
+            "afterbegin",
+            `<${CHAPTERS_CONTAINER_PARAMS.tagName} 
+                ${CHAPTERS_CONTAINER_PARAMS.attrName}="${CHAPTERS_CONTAINER_PARAMS.attrValue}">
+                <div id="${CHAPTERS_CONTAINER_ID}" data-testid="${CHAPTERS_CONTAINER_TEST_ID}">
+                ${ytChapterLinkHtml(0, "0:00", "Chapter 1.")}
+                ${ytChapterLinkHtml(10, "0:10", "Chapter 2.")}
+                ${ytChapterLinkHtml(20, "0:20", "Chapter 3.")}
+                </div>
+            </${CHAPTERS_CONTAINER_PARAMS.tagName}>
+            `
+        );
+        for (const chapter of screen.getAllByTestId("chapter")) {
+            chapter.addEventListener("click", (e) => { e.currentTarget.setAttribute("clicked", "true"); });
+        }
+        chapterList = new YTChapterList(CHAPTERS_CONTAINER_PARAMS, () => {});
+    });
+
+    test("Next chapter navigation", () => {
+        const chapters = screen.getAllByTestId("chapter");
+        chapters[0].setAttribute("active", "");
+
+        chapterList.navigateToChapter("next");
+
+        expect(chapters[1]).toHaveAttribute("clicked", "true");
+    });
+
+    test("Previous chapter navigation", () => {
+        const chapters = screen.getAllByTestId("chapter");
+        chapters[1].setAttribute("active", "");
+
+        chapterList.navigateToChapter("previous");
+
+        expect(chapters[0]).toHaveAttribute("clicked", "true");
+    });
+
+    test("Given the first chapter is active, then previous chapter navigation throws", () => {
+        const chapters = screen.getAllByTestId("chapter");
+        chapters[0].setAttribute("active", "");
+
+        expect(() => { chapterList.navigateToChapter("previous"); }).toThrow();
+    });
+
+    test("Given the last chapter is active, then next chapter navigation throws", () => {
+        const chapters = screen.getAllByTestId("chapter");
+        chapters[2].setAttribute("active", "");
+
+        expect(() => { chapterList.navigateToChapter("next"); }).toThrow();
+    });
+
+    test("Given no chapter is active, then chapter navigation throws", () => {
+        expect(() => { chapterList.navigateToChapter("next"); }).toThrow();
+        expect(() => { chapterList.navigateToChapter("previous"); }).toThrow();
+    });
+});
+
 describe("YTChapterList unit tests", () => {
-    let parseChaptersSpy = jest.spyOn(YTChapterList, YTChapterList.parseChapters.name);
     let callbackMock = jest.fn();
     let chapterList;
 
     const chapterListContainerElement = () => chapterList.containerElement;
-    const staticParseChapters = () => parseChaptersSpy;
     const callback = () => callbackMock;
 
     beforeEach(() => {
         document.body.innerHTML = "<div></div>";
-        parseChaptersSpy.mockReturnValue([]);
         chapterList = new YTChapterList(CHAPTERS_CONTAINER_PARAMS, callbackMock);
     });
 
@@ -47,15 +102,6 @@ describe("YTChapterList unit tests", () => {
             by(expecting(chapterListContainerElement), not(toBeInTheDocument))
         );
 
-        test.each([0, 1, 2, 50, 102, 283, 384])(
-            "Neither chapter index, nor next/previous chapters can be found for t=%ss",
-            (t) => {
-                expect(chapterList.findIndexByVideoTime(t)).toBe(-1);
-                expect(chapterList.nextFrom(t)).toBeUndefined();
-                expect(chapterList.previousFrom(t)).toBeUndefined();
-            }
-        );
-
         describe("Chapter list is initialized", () => {
             let chapterListInitialization;
             beforeEach(() => {
@@ -63,12 +109,7 @@ describe("YTChapterList unit tests", () => {
             });
 
             test(
-                "Chapters are not parsed yet",
-                by(expecting(staticParseChapters), not(toHaveBeenCalled))
-            );
-
-            test(
-                "Chapter list changed callback hasn't been called yet",
+                "Active chapter changed callback hasn't been called yet",
                 by(expecting(callback), not(toHaveBeenCalled))
             );
 
@@ -76,22 +117,22 @@ describe("YTChapterList unit tests", () => {
                 await expectTimeout(chapterListInitialization);
             });
 
+            test("Navigation throws", async () => {
+                expect(() => { chapterList.navigateToChapter("next"); }).toThrow();
+                expect(() => { chapterList.navigateToChapter("previous"); }).toThrow();
+                expect(() => { chapterList.navigateToChapter("first"); }).toThrow();
+            });
+
             describe("Chapter list container node is added to the DOM afterwards and initialization is complete", () => {
-                const parsedChapters = [
-                    { t: 0, anchor: { id: "link1" } },
-                    { t: 10, anchor: { id: "link2" } },
-                    { t: 20, anchor: { id: "link3" } },
-                    { t: 30, anchor: { id: "link4" } },
-                    { t: 100, anchor: { id: "link5" } },
-                ];
                 beforeEach(async () => {
-                    parseChaptersSpy.mockReturnValue(parsedChapters);
                     document.body.insertAdjacentHTML(
                         "afterbegin",
                         `<${CHAPTERS_CONTAINER_PARAMS.tagName} 
                             ${CHAPTERS_CONTAINER_PARAMS.attrName}="${CHAPTERS_CONTAINER_PARAMS.attrValue}">
                             <div id="${CHAPTERS_CONTAINER_ID}" data-testid="${CHAPTERS_CONTAINER_TEST_ID}">
-                            Content is irrelevant in test because chapters parsing is mocked!
+                            <chapter data-testid="c1">One</chapter>
+                            <chapter data-testid="c2">Two</chapter>
+                            <chapter data-testid="c3">Three</chapter>
                             </div>
                         </${CHAPTERS_CONTAINER_PARAMS.tagName}>
                         `
@@ -100,63 +141,38 @@ describe("YTChapterList unit tests", () => {
                 });
 
                 test(
-                    "Chapters are parsed from the container element",
-                    by(
-                        expecting(staticParseChapters),
-                        toHaveBeenCalledWith(chapterListContainerElement)
-                    )
+                    "Active chapter changed callback has not been called",
+                    by(expecting(callback), not(toHaveBeenCalled))
                 );
 
-                test(
-                    "Chapter list changed callback has been called",
-                    by(expecting(callback), toHaveBeenCalled)
-                );
-
-                test.each([
-                    [0, 0, parsedChapters[1], undefined],
-                    [6, 0, parsedChapters[1], undefined],
-                    [11, 1, parsedChapters[2], parsedChapters[0]],
-                    [20, 2, parsedChapters[3], parsedChapters[1]],
-                    [21, 2, parsedChapters[3], parsedChapters[1]],
-                    [91, 3, parsedChapters[4], parsedChapters[2]],
-                    [101, 4, undefined, parsedChapters[3]],
-                    [200, 4, undefined, parsedChapters[3]],
-                ])(
-                    "Chapter index, next and previous chapters can be found for t=%ss now",
-                    (t, index, nextChapter, previousChapter) => {
-                        expect(chapterList.findIndexByVideoTime(t)).toBe(index);
-                        expect(chapterList.nextFrom(t)).toBe(nextChapter);
-                        expect(chapterList.previousFrom(t)).toBe(previousChapter);
-                    }
-                );
-
-                test("When container node content is changed later, then chapters are re-parsed and callback is called eventually", async () => {
+                test("When active chapter is changed later, then callback is called eventually", async () => {
                     callbackMock.mockClear();
-                    parseChaptersSpy.mockClear();
 
-                    chapterList.containerElement.textContent = "New chapter links to be parsed";
+                    screen.getByTestId("c1").setAttribute("active", "");
 
                     await waitFor(() => {
-                        expect(parseChaptersSpy).toHaveBeenCalledWith(chapterList.containerElement);
-                        expect(callbackMock).toHaveBeenCalled();
+                        expect(callbackMock).toHaveBeenCalledWith({ previous: false, next: true });
+                    });
+
+                    screen.getByTestId("c1").removeAttribute("active");
+                    screen.getByTestId("c2").setAttribute("active", "");
+
+                    await waitFor(() => {
+                        expect(callbackMock).toHaveBeenCalledWith({ previous: true, next: true });
+                    });
+
+                    screen.getByTestId("c2").removeAttribute("active");
+                    screen.getByTestId("c3").setAttribute("active", "");
+
+                    await waitFor(() => {
+                        expect(callbackMock).toHaveBeenCalledWith({ previous: true, next: false });
                     });
                 });
 
-                test("When container node is removed later, then chapters are not parsed and callback is called eventually", async () => {
-                    callbackMock.mockClear();
-                    parseChaptersSpy.mockClear();
-                    const initAsyncSpy = jest.spyOn(chapterList, chapterList.initAsync.name);
-
-                    chapterList.containerElement.textContent = "Changed, but subsequently removed from the DOM!";
-                    chapterList.containerElement.remove();
-
-                    await timeoutWhile(waitingFor(parseChaptersSpy))(toHaveBeenCalled);
-
-                    await waitFor(() => {
-                        expect(chapterList.containerElement).not.toBeInTheDocument();
-                        expect(callbackMock).toHaveBeenCalled();
-                        expect(initAsyncSpy).toHaveBeenCalled();
-                    });
+                test("When active chapter is not set, then navigation throws", async () => {
+                    expect(() => { chapterList.navigateToChapter("next"); }).toThrow();
+                    expect(() => { chapterList.navigateToChapter("previous"); }).toThrow();
+                    expect(() => { chapterList.navigateToChapter("first"); }).toThrow();
                 });
             });
         });
@@ -169,7 +185,9 @@ describe("YTChapterList unit tests", () => {
                 `<${CHAPTERS_CONTAINER_PARAMS.tagName}
                     ${CHAPTERS_CONTAINER_PARAMS.attrName}="${CHAPTERS_CONTAINER_PARAMS.attrValue}">
                     <div id="${CHAPTERS_CONTAINER_ID}" data-testid="${CHAPTERS_CONTAINER_TEST_ID}">
-                        Content is irrelevant in test because chapters parsing is mocked!
+                    <chapter data-testid="c1">One</chapter>
+                    <chapter data-testid="c2">Two</chapter>
+                    <chapter data-testid="c3">Three</chapter>
                     </div>
                 </${CHAPTERS_CONTAINER_PARAMS.tagName}>
                 `
@@ -184,85 +202,44 @@ describe("YTChapterList unit tests", () => {
             );
         });
 
-        test.each([0, 1, 2, 50, 102, 283, 384])(
-            "Neither chapter index, nor next/previous chapters can be found for t=%ss yet",
-            (t) => {
-                expect(chapterList.findIndexByVideoTime(t)).toBe(-1);
-                expect(chapterList.nextFrom(t)).toBeUndefined();
-                expect(chapterList.previousFrom(t)).toBeUndefined();
-            }
-        );
-
         describe("Chapter list is initialized and the initialization is complete", () => {
-            const parsedChapters = [
-                { t: 0, anchor: { id: "link1" } },
-                { t: 10, anchor: { id: "link2" } },
-                { t: 20, anchor: { id: "link3" } },
-                { t: 30, anchor: { id: "link4" } },
-                { t: 100, anchor: { id: "link5" } },
-            ];
             beforeEach(async () => {
-                parseChaptersSpy.mockReturnValue(parsedChapters);
                 await chapterList.initAsync();
             });
 
             test(
-                "Chapters are parsed from the container element",
-                // prettier-ignore
-                by(expecting(staticParseChapters), toHaveBeenCalledWith(chapterListContainerElement))
+                "Chapter list changed callback has not been called",
+                by(expecting(callback), not(toHaveBeenCalled))
             );
 
-            test(
-                "Chapter list changed callback has been called",
-                by(expecting(callback), toHaveBeenCalled)
-            );
-
-            test.each([
-                [0, 0, parsedChapters[1], undefined],
-                [6, 0, parsedChapters[1], undefined],
-                [10, 1, parsedChapters[2], parsedChapters[0]],
-                [11, 1, parsedChapters[2], parsedChapters[0]],
-                [20, 2, parsedChapters[3], parsedChapters[1]],
-                [21, 2, parsedChapters[3], parsedChapters[1]],
-                [91, 3, parsedChapters[4], parsedChapters[2]],
-                [101, 4, undefined, parsedChapters[3]],
-                [200, 4, undefined, parsedChapters[3]],
-            ])(
-                "Chapter index, next and previous chapters can be found for t=%ss now",
-                (t, index, nextChapter, previousChapter) => {
-                    expect(chapterList.findIndexByVideoTime(t)).toBe(index);
-                    expect(chapterList.nextFrom(t)).toBe(nextChapter);
-                    expect(chapterList.previousFrom(t)).toBe(previousChapter);
-                }
-            );
-
-            test("When container node content is changed later, then chapters are re-parsed and callback is called eventually", async () => {
+            test("When active chapter is changed later, then callback is called eventually", async () => {
                 callbackMock.mockClear();
-                parseChaptersSpy.mockClear();
 
-                chapterList.containerElement.textContent = "New chapter links to be parsed";
+                screen.getByTestId("c1").setAttribute("active", "");
 
                 await waitFor(() => {
-                    expect(parseChaptersSpy).toHaveBeenCalledWith(chapterList.containerElement);
-                    expect(callbackMock).toHaveBeenCalled();
+                    expect(callbackMock).toHaveBeenCalledWith({ previous: false, next: true });
+                });
+
+                screen.getByTestId("c1").removeAttribute("active");
+                screen.getByTestId("c2").setAttribute("active", "");
+
+                await waitFor(() => {
+                    expect(callbackMock).toHaveBeenCalledWith({ previous: true, next: true });
+                });
+
+                screen.getByTestId("c2").removeAttribute("active");
+                screen.getByTestId("c3").setAttribute("active", "");
+
+                await waitFor(() => {
+                    expect(callbackMock).toHaveBeenCalledWith({ previous: true, next: false });
                 });
             });
 
-            test("When container node is removed later, then chapters are not parsed and callback is called eventually", async () => {
-                callbackMock.mockClear();
-                parseChaptersSpy.mockClear();
-                const initAsyncSpy = jest.spyOn(chapterList, chapterList.initAsync.name);
-
-                chapterList.containerElement.textContent = "Changed, but subsequently removed from the DOM!";
-                chapterList.containerElement.remove();
-
-                await timeoutWhile(waitingFor(parseChaptersSpy))(toHaveBeenCalled);
-
-                await waitFor(() => {
-                    expect(chapterList.containerElement).not.toBeInTheDocument();
-                    expect(callbackMock).toHaveBeenCalled();
-                    expect(initAsyncSpy).toHaveBeenCalled();
-                });
+            test("When active chapter is not set, then navigation throws", async () => {
+                expect(() => { chapterList.navigateToChapter("next"); }).toThrow();
+                expect(() => { chapterList.navigateToChapter("previous"); }).toThrow();
+                expect(() => { chapterList.navigateToChapter("first"); }).toThrow();
             });
         });
     });

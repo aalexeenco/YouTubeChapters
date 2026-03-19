@@ -3,13 +3,12 @@ import { nodeAddedAsync } from "./utils.mjs";
 export class YTChapterList {
     #containerParams;
     #containerElementQuerySelector;
-    #chapters = [];
 
-    onChapterListChanged;
+    onActiveChapterChanged;
 
-    constructor(containerParams, onChapterListChanged) {
+    constructor(containerParams, onActiveChapterChanged) {
         this.#containerParams = containerParams
-        this.onChapterListChanged = onChapterListChanged;
+        this.onActiveChapterChanged = onActiveChapterChanged;
 
         this.#containerElementQuerySelector = `${this.#containerParams.tagName}`;
         if (this.#containerParams.attrName) {
@@ -18,14 +17,7 @@ export class YTChapterList {
         }
         this.#containerElementQuerySelector += ` #${this.#containerParams.containerId}`;
     }
-
-    #setChapters(chapters) {
-        console.debug(`${YTChapterList.name}: ${this.#containerElementQuerySelector} | set chapters`);
-        console.debug(chapters);
-        this.#chapters = chapters;
-        this.onChapterListChanged?.();
-    }
-
+    
     get containerElement() {
         return document.querySelector(this.#containerElementQuerySelector);
     }
@@ -46,52 +38,40 @@ export class YTChapterList {
             container = this.containerElement;
             console.debug(`${YTChapterList.name}: ${this.#containerElementQuerySelector} | container node added`);
         }
-        this.#setChapters(YTChapterList.parseChapters(container));
-        const chaptersParsingObserver = new MutationObserver(() => {
-            if (this.containerElement) {
-                console.debug(`${YTChapterList.name}: ${this.#containerElementQuerySelector} | container node mutated`);
-                this.#setChapters(YTChapterList.parseChapters(this.containerElement));
-            } else {
-                console.debug(`${YTChapterList.name}: ${this.#containerElementQuerySelector} | container node removed`);
-                this.#setChapters([]);
-                this.initAsync();
-            }
-        });
-        chaptersParsingObserver.observe(container, { childList: true, subtree: true });
+        const activeChapterObserver = new MutationObserver((mutationsList) => this.observeActiveChapterChange(mutationsList));
+        activeChapterObserver.observe(container, { attributes: true, subtree: true });
         console.log(`${YTChapterList.name}: ${this.#containerElementQuerySelector} | initialized`);
     }
 
-    findIndexByVideoTime(videoTime) {
-        const index = this.#chapters.findIndex((chapter) => chapter.t > videoTime);
-        return index > -1 ? index - 1 : this.#chapters.length - 1;
+    observeActiveChapterChange(mutationsList) {
+        for (const mutation of mutationsList) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'active') {
+                console.debug(`${YTChapterList.name}: active chapter changed`);
+                if (mutation.target.hasAttribute('active')) {
+                    console.debug(`${YTChapterList.name}: active set: prev=${!!mutation.target.previousElementSibling}, next=${!!mutation.target.nextElementSibling}`);
+                    this.onActiveChapterChanged(
+                        {
+                            previous: !!mutation.target.previousElementSibling,
+                            next: !!mutation.target.nextElementSibling
+                        }
+                    );
+                } else {
+                    console.debug(`${YTChapterList.name}: active unset`);
+                }
+            }
+        }
     }
 
-    nextFrom(videoTime) {
-        const index = this.findIndexByVideoTime(videoTime);
-        return this.#chapters[index + 1];
-    }
-
-    previousFrom(videoTime) {
-        const index = this.findIndexByVideoTime(videoTime);
-        return this.#chapters[index - 1];
-    }
-
-    static parseChapters(container) {
-        return parseChapters(container);
-    }
-}
-
-export function parseChapters(container) {
-    const regexp = /https:\/\/www\.youtube\.com\/watch.*[?&]v=([^&#]+)/i;
-    const videoId = document.baseURI.match(regexp)[1];
-    const videoURI = `https://www.youtube.com/watch?v=${videoId}`;
-    const chapters = [...container.querySelectorAll("ytd-macro-markers-list-item-renderer > a#endpoint")]
-        .filter((a) => a.href.indexOf(videoURI) > -1)
-        .map((a) => {
-            const timeIndex = a.href.indexOf("&t=");
-            const chapterStartTime = timeIndex > 0 ? parseInt(a.href.substring(timeIndex + 3)) : 0;
-            return { t: chapterStartTime, anchor: a };
-        });
+    navigateToChapter(navigationDirection) {
+        const activeChapter = this.containerElement.querySelector("ytd-macro-markers-list-item-renderer[active]");
     
-    return chapters;
+        let chapter;
+        if (navigationDirection === "next") {
+            chapter = activeChapter.nextElementSibling;
+        } else if (navigationDirection === "previous") {
+            chapter = activeChapter.previousElementSibling;
+        }
+
+        chapter.querySelector("a#endpoint").click();
+    }
 }

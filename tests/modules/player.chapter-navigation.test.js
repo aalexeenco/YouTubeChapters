@@ -36,8 +36,6 @@ describe("Player chapter navigation mixin functional tests", () => {
     let addChapterControlsSpy;
     const addChapterControls = () => addChapterControlsSpy;
     let removeChapterControlsSpy;
-    let invalidateChapterControlsSpy;
-    const invalidateChapterControls = () => invalidateChapterControlsSpy;
 
     beforeEach(() => {
         document.body.innerHTML = `<div><div id="anotherPlayer"><video /></div></div>`;
@@ -45,7 +43,6 @@ describe("Player chapter navigation mixin functional tests", () => {
         player = new TestPlayer();
         addChapterControlsSpy = jest.spyOn(player, player.addChapterControls.name);
         removeChapterControlsSpy = jest.spyOn(player, player.removeChapterControls.name);
-        invalidateChapterControlsSpy = jest.spyOn(player, player.invalidateChapterControls.name);
     });
 
     afterEach(() => {
@@ -87,7 +84,6 @@ describe("Player chapter navigation mixin functional tests", () => {
             describe("Chapter title text content is then changed to a non-empty value", () => {
                 beforeEach(async () => {
                     addChapterControlsSpy.mockClear();
-                    invalidateChapterControlsSpy.mockClear();
                     await changeChapterTitle(player.chapterTitleElement, "Chapter Title");
                 });
 
@@ -96,22 +92,10 @@ describe("Player chapter navigation mixin functional tests", () => {
                     by(expecting(addChapterControls), toHaveBeenCalled)
                 );
 
-                test(
-                    "Given the video is playing and non-buffering, then chapter navigation controls are eventually invalidated",
-                    by(expecting(invalidateChapterControls), toHaveBeenCalled)
-                );
-
                 describe("Given controls are added", () => {
                     beforeEach(async () => {
                         await waitingFor(addChapterControls)(toHaveBeenCalled);
                         addChapterControlsSpy.mockClear();
-                        invalidateChapterControlsSpy.mockClear();
-                    });
-
-                    test("Chapter navigation controls are invalidated on chapter change", async () => {
-                        await changeChapterTitle(player.chapterTitleElement, "Chapter 2");
-
-                        expect(invalidateChapterControlsSpy).toHaveBeenCalled();
                     });
 
                     test("When chapter title content is cleared, then chapter navigation controls are removed", async () => {
@@ -119,7 +103,6 @@ describe("Player chapter navigation mixin functional tests", () => {
 
                         expect(removeChapterControlsSpy).toHaveBeenCalled();
                         expect(addChapterControlsSpy).not.toHaveBeenCalled();
-                        expect(invalidateChapterControlsSpy).not.toHaveBeenCalled();
                     });
                 });
             });
@@ -158,13 +141,6 @@ describe("Player chapter navigation mixin functional tests", () => {
                 beforeEach(async () => {
                     await waitingFor(addChapterControls)(toHaveBeenCalled);
                     addChapterControlsSpy.mockClear();
-                    invalidateChapterControlsSpy.mockClear();
-                });
-
-                test("Chapter navigation controls are invalidated on chapter change", async () => {
-                    await changeChapterTitle(player.chapterTitleElement, "Chapter 2");
-
-                    expect(invalidateChapterControlsSpy).toHaveBeenCalled();
                 });
 
                 test("When chapter title content is cleared afterwards, then chapter navigation controls are removed", async () => {
@@ -172,7 +148,6 @@ describe("Player chapter navigation mixin functional tests", () => {
 
                     expect(removeChapterControlsSpy).toHaveBeenCalled();
                     expect(addChapterControlsSpy).not.toHaveBeenCalled();
-                    expect(invalidateChapterControlsSpy).not.toHaveBeenCalled();
                 });
             });
         });

@@ -5,11 +5,13 @@ export function ytChapterLinkHtml(
     formattedTime,
     chapterTitle,
     videoPageUri = VideoPageURI, 
-    styleClass = "ytd-macro-markers-list-renderer"
+    styleClass = "ytd-macro-markers-list-renderer",
+    active = false
 ) {
     let timestr = t > 0 ? `&t=${t}s` : "";
+    let activeStr = active ? "active" : "";
     return `
-    <ytd-macro-markers-list-item-renderer class="style-scope ${styleClass}">
+    <ytd-macro-markers-list-item-renderer data-testid="chapter" class="style-scope ${styleClass}" ${activeStr}>
     <a id="endpoint" class="yt-simple-endpoint style-scope ytd-macro-markers-list-item-renderer" draggable="false" 
         href="${videoPageUri}${timestr}">
         <div id="thumbnail" class="style-scope ytd-macro-markers-list-item-renderer"></div>

@@ -95,13 +95,10 @@ export const withChapterOverlay = (YTPlayer) =>
 export const withChapterNavigation = (YTPlayer, ChapterList) =>
     class extends YTPlayer {
         #chapters;
-        #onRuntimeMessageCallback;
 
         constructor(playerId, chapterContainerParams) {
             super(playerId);
-            this.#chapters = new ChapterList(chapterContainerParams, () =>
-                this.invalidateChapterControls()
-            );
+            this.#chapters = new ChapterList(chapterContainerParams, (event) => this.onActiveChapterChanged(event));
         }
 
         async initAsync() {
@@ -128,8 +125,6 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
             if (chapterTitleAdded) {
                 this.addChapterControls();
             }
-
-            this.invalidateChapterControls();
         }
 
         addChapterControls() {
@@ -142,7 +137,7 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
                 `
                 <div class="ytp-chapter-container ytp-chapter-control">
                     <button class="ytp-chapter-title ytp-button ytp-chapter-button ytp-chapter-button-prev ytp-autohide-fade-transition" 
-                        title="Previous Chapter" aria-label="Previous Chapter" data-controltype="previous" disabled>
+                        title="Previous chapter" aria-label="Previous Chapter" data-controltype="previous" disabled>
                         <div class="ytp-chapter-title-chevron">
                             <svg height="100%" viewBox="0 0 24 24" width="100%">
                                 <path d="M14.29 18.71 l1.42-1.42 -5.3-5.29 5.3-5.29 -1.42-1.42 -6.7 6.71 z" fill="#fff"></path>
@@ -158,7 +153,7 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
                 `
                 <div class="ytp-chapter-container ytp-chapter-control">
                     <button class="ytp-chapter-title ytp-button ytp-chapter-button ytp-chapter-button-next ytp-autohide-fade-transition" 
-                        title="Next Chapter" aria-label="Next Chapter" data-controltype="next" disabled>
+                        title="Next chapter" aria-label="Next Chapter" data-controltype="next" disabled>
                         <div class="ytp-chapter-title-content">Next</div>
                         <div class="ytp-chapter-title-chevron">
                             <svg height="100%" viewBox="0 0 24 24" width="100%">
@@ -177,9 +172,6 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
                         this.onChapterControlButtonClick(event.target)
                     )
                 );
-
-            this.#onRuntimeMessageCallback = (request) => this.onRuntimeMessage(request);
-            chrome.runtime.onMessage.addListener(this.#onRuntimeMessageCallback);
         }
 
         removeChapterControls() {
@@ -187,81 +179,28 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
             this.element
                 .querySelectorAll("div.ytp-chapter-control")
                 .forEach((btn) => btn.remove());
-
-            chrome.runtime.onMessage.removeListener(this.#onRuntimeMessageCallback);
         }
 
         onChapterControlButtonClick(target) {
             const button = target.closest("button");
             const navigationDirection = button.attributes["data-controltype"].value;
             console.debug("%s: #%s | button(%s) clicked", withChapterNavigation.name, this.element.id, navigationDirection);
-            this.navigateToChapter(navigationDirection);
+            this.#chapters.navigateToChapter(navigationDirection);
         }
 
-        navigateToChapter(navigationDirection) {
-            if (navigationDirection === "next") {
-                this.nextChapterLink?.click();
-            } else if (navigationDirection === "previous") {
-                this.prevChapterLink?.click();
-            }
-        }
-
-        get nextChapterLink() {
-            return this.#chapters.nextFrom(this.videoElement.currentTime)?.anchor;
-        }
-
-        get prevChapterLink() {
-            return this.#chapters.previousFrom(this.videoElement.currentTime)?.anchor;
-        }
-
-        invalidateChapterControls() {
-            console.debug("%s: #%s | invalidating chapter controls...", withChapterNavigation.name, this.element.id);
-            const playerVideo = this.videoElement;
-            if (playerVideo.paused) {
-                console.debug("%s: #%s | update chapter controls on 'seek'", withChapterNavigation.name, this.element.id);
-                this.listenForEventOnce(playerVideo, "seeked", () => { this.updateChapterControls(); });
-                console.debug("%s: #%s | update chapter controls on 'play'", withChapterNavigation.name, this.element.id);
-                this.listenForEventOnce(playerVideo, "play", () => { this.updateChapterControls(); });
-            } else if (playerVideo.currentTime > 0) {
-                this.updateChapterControls();
-            } else {
-                console.debug("%s: #%s | invalidate chapter controls on 'timeupdate'", withChapterNavigation.name, this.element.id);
-                this.listenForEventOnce(playerVideo, "timeupdate", () => { this.invalidateChapterControls(); });
-            }
-            console.debug("%s: #%s | invalidated chapter controls", withChapterNavigation.name, this.element.id);
-        }
-
-        listenForEventOnce(element, eventName, callback) {
-            element.addEventListener(
-                eventName,
-                () => { 
-                    console.debug("%s: #%s | %s", withChapterNavigation.name, this.element.id, eventName);
-                    callback(); 
-                },
-                { once: true }
-            );
-        }
-
-        updateChapterControls() {
+        onActiveChapterChanged(event) {
             console.debug("%s: #%s | updating chapter controls...", withChapterNavigation.name, this.element.id);
             const prevButton = this.element.querySelector(".ytp-chapter-button-prev");
             if (prevButton) {
-                prevButton.disabled = !this.prevChapterLink;
+                prevButton.disabled = !event.previous;
                 console.debug("%s: #%s | prev=%s", withChapterNavigation.name, this.element.id, !prevButton.disabled);
             }
             const nextButton = this.element.querySelector(".ytp-chapter-button-next");
             if (nextButton) {
-                nextButton.disabled = !this.nextChapterLink;
+                nextButton.disabled = !event.next;
                 console.debug("%s: #%s | next=%s", withChapterNavigation.name, this.element.id, !nextButton.disabled);
             }
             console.debug("%s: #%s | updated chapter controls", withChapterNavigation.name, this.element.id);
-        }
-
-        onRuntimeMessage(request) {
-            console.debug("%s: #%s | runtime msg(%s)", withChapterNavigation.name, this.element.id, request.navigationDirection);
-            if (this.videoElement.clientHeight > 0) {
-                this.navigateToChapter(request.navigationDirection);
-            }
         }
     };
 
