@@ -1,5 +1,4 @@
 import { YTPlayerChapterOverlay } from "./chapter-overlay.mjs";
-import { YTChapterList } from "./chapters.mjs";
 import { nodeAddedAsync } from "./utils.mjs";
 
 export class YTPlayer {
@@ -14,7 +13,9 @@ export class YTPlayer {
     }
 
     get chapterTitleElement() {
-        return this.element?.querySelector("button.ytp-chapter-title:not(.ytp-chapter-button) > .ytp-chapter-title-content");
+        return this.element?.querySelector(
+            "button.ytp-chapter-title:not(.ytp-chapter-button) > .ytp-chapter-title-content",
+        );
     }
 
     get chapterTitle() {
@@ -32,110 +33,151 @@ export class YTPlayer {
     async initAsync() {
         console.debug("%s: #%s | initializing...", YTPlayer.name, this.#id);
         if (!this.element) {
-            console.debug("%s: #%s | start observing for the node...", YTPlayer.name, this.#id);
+            console.debug("%s: #%s | waiting for the player node...", YTPlayer.name, this.#id);
             await nodeAddedAsync(document, (n) => n.id === this.#id);
-            console.debug("%s: #%s | node added", YTPlayer.name, this.#id);
+            console.debug("%s: #%s | player node added", YTPlayer.name, this.#id);
         }
-        const observer = new MutationObserver((mutations) => this.onChapterChanged(mutations));
-        observer.observe(this.chapterTitleElement, { childList: true });
+        this.#observe();
         console.debug("%s: #%s | initialized", YTPlayer.name, this.#id);
     }
 
-    onChapterChanged() {
-        console.debug("%s: #%s | send runtime message", YTPlayer.name, this.element?.id);
-        chrome.runtime.sendMessage(
-            { 
-                type: "chapter",
-                title: this.videoTitle,
-                text: this.chapterTitle
+    #observe() {
+        new MutationObserver((mutations) => {
+            let newValue = "";
+            let oldValue = "";
+            for (const mutation of mutations) {
+                for (const addedNode of mutation.addedNodes) {
+                    if (addedNode.textContent) {
+                        newValue = addedNode.textContent;
+                    }
+                }
+                for (const removedNode of mutation.removedNodes) {
+                    if (removedNode.textContent) {
+                        oldValue = removedNode.textContent;
+                    }
+                }
             }
-        );
+
+            // prettier-ignore
+            console.debug("%s: #%s | chapter title changed '%s' -> '%s'", YTPlayer.name, this.#id, oldValue, newValue);
+            if (oldValue || newValue) {
+                this.onChapterTitleChanged({
+                    oldValue,
+                    newValue,
+                });
+            }
+        }).observe(this.chapterTitleElement, { childList: true });
+    }
+
+    onChapterTitleChanged(event) {
+        if (!event.newValue) {
+            return;
+        }
+        // prettier-ignore
+        console.debug("%s: #%s | send runtime message ('%s', '%s')", YTPlayer.name, this.element?.id, this.videoTitle, event.newValue);
+        chrome.runtime.sendMessage({
+            type: "chapter",
+            title: this.videoTitle,
+            text: event.newValue,
+        });
     }
 }
 
-export const withChapterOverlay = (YTPlayer) =>
-    class extends YTPlayer {
+export const withChapterOverlay = (Player) =>
+    class extends Player {
         get overlayContainerElement() {
             return this.element?.querySelector(".ytp-overlay-bottom-left");
         }
 
-        async initAsync() {
-            await super.initAsync();
-            console.debug("%s: #%s | initializing...", withChapterOverlay.name, this.element?.id);
-            const titleText = this.chapterTitle;
-            if (titleText) {
-                this.displayOverlay(titleText);
+        onChapterTitleChanged(event) {
+            super.onChapterTitleChanged(event);
+            if (event.newValue) {
+                this.displayOverlay(event.newValue);
+            } else {
+                this.removeOverlay();
             }
-            console.debug("%s: #%s | initialized", withChapterOverlay.name, this.element?.id);
         }
 
         displayOverlay(chapterTitleText) {
+            // prettier-ignore
             console.debug("%s: #%s | display overlay '%s'", withChapterOverlay.name, this.element?.id, chapterTitleText);
             if (!this.overlay) {
                 this.overlay = new YTPlayerChapterOverlay();
                 this.overlayContainerElement.appendChild(this.overlay.element);
             }
-
             this.overlay.chapterTitle = chapterTitleText;
         }
 
-        onChapterChanged(mutations) {
-            super.onChapterChanged(mutations);
-            const titleText = this.chapterTitle;
-            console.debug("%s: #%s | chapter changed '%s'", withChapterOverlay.name, this.element?.id, titleText);
-            if (titleText) {
-                this.displayOverlay(titleText);
-            } else {
-                this.overlay?.element.remove();
-                this.overlay = null;
-            }
+        removeOverlay() {
+            // prettier-ignore
+            console.debug("%s: #%s | remove overlay", withChapterOverlay.name, this.element?.id);
+            this.overlay?.element.remove();
+            this.overlay = null;
         }
     };
 
-export const withChapterNavigation = (YTPlayer, ChapterList) =>
-    class extends YTPlayer {
-        #chapters;
+export const withChapterNavigation = (Player) =>
+    class extends Player {
+        static PREV_CHAPTER_TITLE = "Previous chapter";
+        static NEXT_CHAPTER_TITLE = "Next chapter";
 
-        constructor(playerId, chapterContainerParams) {
-            super(playerId);
-            this.#chapters = new ChapterList(chapterContainerParams, (event) => this.onActiveChapterChanged(event));
+        static PANELS_ID = "panels";
+        static TAGNAME = "ytd-engagement-panel-section-list-renderer";
+        static TARGET_ID = "engagement-panel-macro-markers-description-chapters";
+        static VISIBILITY = "ENGAGEMENT_PANEL_VISIBILITY_HIDDEN";
+        static CHAPTER_ITEM_TAGNAME = "ytd-macro-markers-list-item-renderer";
+        static CHAPTER_ITEM_QS = `${this.CHAPTER_ITEM_TAGNAME}`;
+        static TAG_VISIBILITY_QS = `${this.TAGNAME}[visibility="${this.VISIBILITY}"]`;
+        static QS = `${this.TAGNAME}[target-id="${this.TARGET_ID}"][visibility="${this.VISIBILITY}"]`;
+
+        get panelsContainer() {
+            return document.getElementById(this.constructor.PANELS_ID);
+        }
+
+        get chapterControls() {
+            return this.element?.querySelectorAll("div.ytp-chapter-control");
+        }
+
+        get prevChapterButton() {
+            return document.getElementById("chapter-button-prev");
+        }
+
+        get nextChapterButton() {
+            return document.getElementById("chapter-button-next");
         }
 
         async initAsync() {
             await super.initAsync();
+            // prettier-ignore
             console.debug("%s: #%s | initializing...", withChapterNavigation.name, this.element?.id);
-            await this.#chapters.initAsync();
             this.addChapterControls();
+            if (!this.panelsContainer) {
+                // prettier-ignore
+                console.debug("%s: #%s | waiting for the panels container node...", withChapterNavigation.name, this.element?.id);
+                await nodeAddedAsync(
+                    document.body,
+                    (n) => n.nodeType === 1 && n.id === this.constructor.PANELS_ID,
+                );
+                // prettier-ignore
+                console.debug("%s: #%s | panels container node added", withChapterNavigation.name, this.element?.id);
+            }
+            this.#observe();
             console.debug("%s: #%s | initialized", withChapterNavigation.name, this.element?.id);
         }
 
-        onChapterChanged(mutations) {
-            super.onChapterChanged(mutations);
-            console.debug("%s: #%s | chapter changed", withChapterNavigation.name, this.element?.id);
-            if (this.chapterTitle === "") {
-                this.hideChapterControls();
-                return;
-            }
-
-            const chapterTitleAdded = 
-                mutations.length <= 1 ||
-                (mutations[0].removedNodes[0] ?? mutations[1].removedNodes[0]).textContent === "";
-            if (chapterTitleAdded) {
-                this.showChapterControls();
-            }
-        }
-
         addChapterControls() {
-            console.debug("%s: #%s | add chapter controls", withChapterNavigation.name, this.element.id);
-            const chapterTitleContainer = this.chapterTitleElement.closest(
-                ".ytp-chapter-container"
-            );
-            chapterTitleContainer.insertAdjacentHTML(
+            // prettier-ignore
+            console.debug("%s: #%s | add chapter controls", withChapterNavigation.name, this.element?.id);
+            const titleContainer = this.chapterTitleElement.closest(".ytp-chapter-container");
+            titleContainer.insertAdjacentHTML(
                 "beforebegin",
                 `
-                <div class="ytp-chapter-container ytp-chapter-control" hidden>
-                    <button class="ytp-chapter-title ytp-button ytp-chapter-button ytp-chapter-button-prev ytp-autohide-fade-transition" 
-                        title="Previous chapter" aria-label="Previous Chapter" data-controltype="previous" disabled>
+                <div class="ytp-chapter-container ytp-chapter-control">
+                    <button id="chapter-button-prev" disabled class="ytp-chapter-title ytp-button ytp-chapter-button"
+                        data-seek-chapter="previous"
+                        title="${this.constructor.PREV_CHAPTER_TITLE}" 
+                        aria-label="${this.constructor.PREV_CHAPTER_TITLE}"
+                        data-tooltip-title="${this.constructor.PREV_CHAPTER_TITLE}">
                         <div class="ytp-chapter-title-chevron">
                             <svg height="100%" viewBox="0 0 24 24" width="100%">
                                 <path d="M14.29 18.71 l1.42-1.42 -5.3-5.29 5.3-5.29 -1.42-1.42 -6.7 6.71 z" fill="#fff"></path>
@@ -144,14 +186,17 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
                         <div class="ytp-chapter-title-content">Prev</div>
                     </button>
                 </div>
-                `
+                `,
             );
-            chapterTitleContainer.insertAdjacentHTML(
+            titleContainer.insertAdjacentHTML(
                 "beforebegin",
                 `
-                <div class="ytp-chapter-container ytp-chapter-control" hidden>
-                    <button class="ytp-chapter-title ytp-button ytp-chapter-button ytp-chapter-button-next ytp-autohide-fade-transition" 
-                        title="Next chapter" aria-label="Next Chapter" data-controltype="next" disabled>
+                <div class="ytp-chapter-container ytp-chapter-control">
+                    <button id="chapter-button-next" disabled class="ytp-chapter-title ytp-button ytp-chapter-button" 
+                        data-seek-chapter="next"
+                        title="${this.constructor.NEXT_CHAPTER_TITLE}"
+                        aria-label="${this.constructor.NEXT_CHAPTER_TITLE}"
+                        data-tooltip-title="${this.constructor.NEXT_CHAPTER_TITLE}">
                         <div class="ytp-chapter-title-content">Next</div>
                         <div class="ytp-chapter-title-chevron">
                             <svg height="100%" viewBox="0 0 24 24" width="100%">
@@ -160,52 +205,125 @@ export const withChapterNavigation = (YTPlayer, ChapterList) =>
                         </div>
                     </button>
                 </div>
-                `
+                `,
             );
 
-            this.element
-                .querySelectorAll("button.ytp-chapter-button")
-                .forEach((btn) =>
-                    btn.addEventListener("click", (event) =>
-                        this.onChapterControlButtonClick(event.target)
-                    )
-                );
+            this.element.querySelectorAll("button.ytp-chapter-button").forEach((btn) =>
+                btn.addEventListener("click", (event) => {
+                    const direction = event.currentTarget.dataset.seekChapter;
+                    // prettier-ignore
+                    console.debug("%s: #%s | button(%s) clicked", withChapterNavigation.name, this.element?.id, direction);
+                    this.#seekChapter(direction);
+                }),
+            );
         }
 
-        hideChapterControls() {
-            console.debug("%s: #%s | hide chapter controls", withChapterNavigation.name, this.element.id);
-            this.element
-                .querySelectorAll("div.ytp-chapter-control")
-                .forEach((el) => el.hidden = true);
-        }
-
-        showChapterControls() {
-            console.debug("%s: #%s | show chapter controls", withChapterNavigation.name, this.element.id);
-            this.element
-                .querySelectorAll("div.ytp-chapter-control")
-                .forEach((el) => el.hidden = false);
-        }
-
-        onChapterControlButtonClick(target) {
-            const button = target.closest("button");
-            const navigationDirection = button.attributes["data-controltype"].value;
-            console.debug("%s: #%s | button(%s) clicked", withChapterNavigation.name, this.element.id, navigationDirection);
-            this.#chapters.navigateToChapter(navigationDirection);
-        }
-
-        onActiveChapterChanged(event) {
-            console.debug("%s: #%s | updating chapter controls...", withChapterNavigation.name, this.element.id);
-            const prevButton = this.element.querySelector(".ytp-chapter-button-prev");
-            if (prevButton) {
-                prevButton.disabled = !event.previous;
-                console.debug("%s: #%s | prev=%s", withChapterNavigation.name, this.element.id, !prevButton.disabled);
+        #seekChapter(direction) {
+            let keyEvent;
+            if (direction === "previous") {
+                keyEvent = new KeyboardEvent("keydown", {
+                    key: "ArrowLeft",
+                    code: "ArrowLeft",
+                    keyCode: 37,
+                    which: 37,
+                    ctrlKey: true,
+                    bubbles: true,
+                    cancelable: true,
+                    composed: true,
+                });
+            } else if (direction === "next") {
+                keyEvent = new KeyboardEvent("keyup", {
+                    key: "ArrowRight",
+                    code: "ArrowRight",
+                    keyCode: 39,
+                    which: 39,
+                    ctrlKey: true,
+                    bubbles: true,
+                    cancelable: true,
+                    composed: true,
+                });
             }
-            const nextButton = this.element.querySelector(".ytp-chapter-button-next");
-            if (nextButton) {
-                nextButton.disabled = !event.next;
-                console.debug("%s: #%s | next=%s", withChapterNavigation.name, this.element.id, !nextButton.disabled);
+            document.body.dispatchEvent(keyEvent);
+        }
+
+        #observe() {
+            new MutationObserver((mutations) => {
+                let active;
+                for (const mutation of mutations) {
+                    if (
+                        !(
+                            mutation.target.closest(this.constructor.QS) &&
+                            mutation.target.matches(this.constructor.CHAPTER_ITEM_QS)
+                        )
+                    ) {
+                        continue;
+                    }
+
+                    if (mutation.target.hasAttribute(mutation.attributeName)) {
+                        active = mutation.target;
+                        break;
+                    }
+
+                    active = null;
+                }
+                if (active !== undefined) {
+                    this.onActiveChapterChanged(active);
+                }
+            }).observe(this.panelsContainer, {
+                attributeFilter: ["active"],
+                subtree: true,
+            });
+
+            new MutationObserver((mutations) => {
+                for (const mutation of mutations) {
+                    if (
+                        mutation.oldValue === this.constructor.TARGET_ID &&
+                        mutation.target.matches(this.constructor.TAG_VISIBILITY_QS)
+                    ) {
+                        // prettier-ignore
+                        console.debug("%s: #%s | panel attr '%s' reset", withChapterNavigation.name, this.element?.id, mutation.attributeName);
+                        this.deactivateChapterControls();
+                        return;
+                    }
+                }
+            }).observe(this.panelsContainer, {
+                attributeFilter: ["target-id"],
+                attributeOldValue: true,
+                subtree: true,
+            });
+        }
+
+        onChapterTitleChanged(event) {
+            super.onChapterTitleChanged(event);
+            if (!event.oldValue || !event.newValue) {
+                // prettier-ignore
+                console.debug("%s: #%s | chapter controls | toggle 'visible'", withChapterNavigation.name, this.element?.id);
+                this.chapterControls.forEach((el) => el.classList.toggle("visible"));
             }
-            console.debug("%s: #%s | updated chapter controls", withChapterNavigation.name, this.element.id);
+        }
+
+        onActiveChapterChanged(active) {
+            // prettier-ignore
+            console.debug("%s: #%s | active chapter changed", withChapterNavigation.name, this.element?.id);
+            if (!active) {
+                this.deactivateChapterControls();
+                return;
+            }
+
+            this.chapterControls.forEach((el) => el.classList.add("activated"));
+            const prevButton = this.prevChapterButton;
+            const nextButton = this.nextChapterButton;
+            const { firstElementChild, lastElementChild } = active.parentElement;
+            prevButton.disabled = firstElementChild === active;
+            nextButton.disabled = lastElementChild === active;
+            // prettier-ignore
+            console.debug("%s: #%s | prev=%s, next=%s", withChapterNavigation.name, this.element?.id, !prevButton.disabled, !nextButton.disabled);
+        }
+
+        deactivateChapterControls() {
+            // prettier-ignore
+            console.debug("%s: #%s | chapter controls | deactivate", withChapterNavigation.name, this.element?.id);
+            this.chapterControls.forEach((el) => el.classList.remove("activated"));
         }
     };
 
@@ -215,16 +333,8 @@ export class YTChannelPlayer extends withChapterOverlay(YTPlayer) {
     }
 }
 
-export class YTMainPlayer extends withChapterNavigation(withChapterOverlay(YTPlayer), YTChapterList) {
+export class YTMainPlayer extends withChapterNavigation(withChapterOverlay(YTPlayer)) {
     constructor() {
-        super(
-            "movie_player", 
-            { 
-                tagName: "ytd-macro-markers-list-renderer",
-                attrName: "panel-target-id",
-                attrValue: "engagement-panel-macro-markers",
-                containerId: "contents"
-            }
-        );
+        super("movie_player");
     }
 }

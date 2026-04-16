@@ -33,5 +33,5 @@ test.each(["Chapter1", "Chapter2", "ChapterTitle", ""])(
         observer.observe(overlay.element, { childList: true, subtree: true });
 
         overlay.chapterTitle = newChapterTitleText;
-    }
+    },
 );

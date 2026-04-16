@@ -6,6 +6,14 @@
     stroke: gray;
 }
 
+.ytp-chapter-container.ytp-chapter-control {
+    display: none !important;
+}
+
+.ytp-chapter-container.ytp-chapter-control.activated.visible {
+    display: revert !important;
+}
+
 .ytp-chapter-title-overlay {
     position: absolute;
     left: 0;
