@@ -34,7 +34,7 @@ the YouTube player.
 
 ### Prerequisites
 
-[Node.js](https://nodejs.org) v14.15.0 or higher.
+[Node.js](https://nodejs.org) v24.0.0 or higher.
 
 ### Setup
 
