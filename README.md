@@ -63,13 +63,11 @@ npm test
 ## Built With
 
 * [Babel](https://babeljs.io/)
-* [cross-var](https://www.npmjs.com/package/cross-var)
 * [ESLint](https://eslint.org)
 * [Jest](https://jestjs.io/) - JavaScript Testing Framework
 * [jest-stare](https://www.npmjs.com/package/jest-stare) - Jest HTML Reporter
 * [Prettier](https://prettier.io)
 * [Testing Library](https://testing-library.com/)
-* [yvar](https://www.npmjs.com/package/yvar)
 * [VS Code](https://code.visualstudio.com/)
 * [Git Release](https://github.com/marketplace/actions/git-release) -
 A GitHub Action for creating a GitHub Release with Assets and Changelog
