@@ -15,15 +15,15 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.x, 24.x]
+        node-version: [24.x]
     env:
       NODEJS: ${{ matrix.node-version }}
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
@@ -32,16 +32,15 @@ jobs:
         npm run lint
         npm run coverage:ci
     - name: Archive test results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: test-report-node${{ matrix.node-version }}
         path: jest-stare
     - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v6
       env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       with:
         directory: ./coverage/
         fail_ci_if_error: true
-        env_vars: NODEJS
-        
+        env_vars: NODEJS        
