@@ -6,9 +6,12 @@ export const waitingFor = (...actuals) => (toMatch) => waitFor(() => actuals.for
 export const timeoutWhile = (awaiting) => (toMatch) => expect(awaiting(toMatch)).rejects.toThrow();
 export const not = (assert) => (expectElementOrFun) => assert(expectElementOrFun.not);
 
+export const toBeDefined = (expectElement) => expectElement.toBeDefined();
 export const toBeDisabled = (expectElement) => expectElement.toBeDisabled();
 export const toBeEmptyDOMElement = (expectElement) => expectElement.toBeEmptyDOMElement();
 export const toBeInTheDocument = (expectElement) => expectElement.toBeInTheDocument();
+export const toBeNull = (expectElement) => expectElement.toBeNull();
+export const toBeUndefined = (expectElement) => expectElement.toBeUndefined();
 
 export const toHaveBeenCalled = (expectMockFun) => expectMockFun.toHaveBeenCalled();
 export const toHaveBeenCalledWith = (args) => (expectMockFun) => expectMockFun.toHaveBeenCalledWith(args());

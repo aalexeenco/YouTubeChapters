@@ -1,7 +1,10 @@
+import { jest } from "@jest/globals";
 import { withChapterOverlay, YTPlayer } from "js/modules/player.mjs";
 import { screen } from "./../testing-library-dom.mjs";
 
-const chapterTitleOverlay = () => document.querySelector(".ytp-chapter-title-overlay");
+const chapterTitleOverlayContainer = () => screen.queryByTestId("overlay-container");
+const chapterTitleOverlay = () =>
+    chapterTitleOverlayContainer().querySelector(".ytp-chapter-title-overlay");
 const chapterTitleOverlayWithRevealEffectAndText = (chapterTitleText) =>
     screen.queryByText(chapterTitleText, {
         selector: ".ytp-chapter-title-overlay.ytp-overlay-reveal",
@@ -9,71 +12,88 @@ const chapterTitleOverlayWithRevealEffectAndText = (chapterTitleText) =>
 
 class TestPlayer extends withChapterOverlay(YTPlayer) {}
 
-describe("Chapter overlay mixin tests", () => {
+afterEach(() => {
+    jest.clearAllMocks();
+});
+
+test("Chapter title changed callback calls super", async () => {
+    const parentImpl = jest.spyOn(YTPlayer.prototype, YTPlayer.prototype.onChapterTitleChanged.name);
+    const event = {};
+    new TestPlayer("foo").onChapterTitleChanged(event);
+
+    expect(parentImpl).toHaveBeenCalledWith(event);
+});
+
+describe("Chapter title overlay mixin tests", () => {
     let player;
-    beforeEach(async () => {
+
+    beforeEach(() => {
         document.body.innerHTML = `
         <div>
             <div id="foo" data-testid="player">
-                <div class="ytp-overlay-bottom-left">
+                <div class="ytp-overlay-bottom-left" data-testid="overlay-container">
                 </div>
-                <video class="html5-main-video" />
-                <button class="ytp-chapter-title ytp-button">
-                    <div class="ytp-chapter-title-content"></div>
-                </button>
             </div>
         </div>
         `;
         player = new TestPlayer("foo");
     });
 
-    test("Given empty chapter title, then overlay is not displayed on init", async () => {
-        await player.initAsync();
-
-        expect(chapterTitleOverlay()).not.toBeInTheDocument();
+    test("Overlay container element is defined", async () => {
+        expect(player.overlayContainerElement).toBeDefined();
+        expect(player.overlayContainerElement).toBe(chapterTitleOverlayContainer());
     });
 
-    test("Given non-empty chapter title, then overlay is displayed on init", async () => {
-        player.chapterTitleElement.textContent = "New Chapter";
-        await player.initAsync();
+    test("Chapter title overlay can be displayed with reveal", async () => {
+        const text = "Chapter 1";
+        player.displayOverlay(text);
 
+        expect(player.element).toContainElement(chapterTitleOverlayWithRevealEffectAndText(text));
+    });
+
+    test("Existing chapter title overlay can be removed", async () => {
+        player.displayOverlay("Chapter");
         expect(player.element).toContainElement(chapterTitleOverlay());
+
+        player.removeOverlay();
+        expect(player.element).not.toContainElement(chapterTitleOverlay());
     });
 
-    describe("Chapter title is changed to a non-empty value", () => {
-        beforeEach(() => {
-            player.chapterTitleElement.textContent = "Hello, World!";
-            player.onChapterChanged();
-        });
+    test("Attempt to remove non-existing chapter title overlay is ok", async () => {
+        expect(() => player.removeOverlay()).not.toThrow();
+        expect(() => player.removeOverlay()).not.toThrow();
+        expect(() => player.removeOverlay()).not.toThrow();
+    });
 
-        test("Chapter overlay is added to the player", () => {
-            expect(chapterTitleOverlay()).toBeDefined();
-            expect(player.element).toContainElement(chapterTitleOverlay());
-        });
+    test("Given a empty chapter title, when chapter title is changed to a non empty string, the overlay is displayed", async () => {
+        const displayOverlaySpy = jest.spyOn(player, "displayOverlay");
+        const event = { oldValue: "", newValue: "New Chapter" };
+        player.onChapterTitleChanged(event);
 
-        test("Chapter title is revealed", () => {
-            expect(chapterTitleOverlay()).toContainElement(
-                chapterTitleOverlayWithRevealEffectAndText(player.chapterTitleElement.textContent)
-            );
-        });
+        expect(displayOverlaySpy).toHaveBeenCalledWith(event.newValue);
+    });
 
-        test("When chapter title is changed to another non-empty value, then overlay is changed", () => {
-            const newChapterTitleText = "New Chapter";
-            player.chapterTitleElement.textContent = newChapterTitleText;
+    test("Given an non-empty chapter title, when chapter title is changed to another non empty string, the overlay is displayed", async () => {
+        const displayOverlaySpy = jest.spyOn(player, "displayOverlay");
+        const event = { oldValue: "Old Chapter", newValue: "New Chapter" };
+        player.onChapterTitleChanged(event);
 
-            player.onChapterChanged();
+        expect(displayOverlaySpy).toHaveBeenCalledWith(event.newValue);
+    });
 
-            expect(player.element).toContainElement(
-                chapterTitleOverlayWithRevealEffectAndText(newChapterTitleText)
-            );
-        });
+    test("Given a non-empty chapter title, when chapter title is changed to an empty string, the overlay is removed", async () => {
+        const removeOverlaySpy = jest.spyOn(player, "removeOverlay");
+        const event = { oldValue: "Old Chapter", newValue: "" };
+        player.onChapterTitleChanged(event);
 
-        test("When chapter title is cleared afterwards, then overlay is removed", () => {
-            player.chapterTitleElement.textContent = "";
+        expect(removeOverlaySpy).toHaveBeenCalled();
+    });
 
-            player.onChapterChanged();
+    test("Given an empty chapter title, when chapter title is changed to an empty string, the overlay is removed", async () => {
+        const removeOverlaySpy = jest.spyOn(player, "removeOverlay");
+        const event = { oldValue: "", newValue: "" };
+        player.onChapterTitleChanged(event);
 
-            expect(chapterTitleOverlay()).not.toBeInTheDocument();
-        });
+        expect(removeOverlaySpy).toHaveBeenCalled();
     });
 });

@@ -10,12 +10,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Use Node.js 18
-        uses: actions/setup-node@v4
+      - name: Use Node.js 24
+        uses: actions/setup-node@v6
         with:
-          node-version: 18
+          node-version: 24
           cache: 'npm'
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Lint and test
         run: | 
           npm ci
@@ -28,14 +28,12 @@ jobs:
           cp LICENSE ./dist/
           mkdir release
           cd dist
-          rm manifest-v2.json
           zip -r ../release/yt_chapters_ext.zip ./*
           cd ..
           rm -rf dist
           npm run build:firefox:production
           cp LICENSE ./dist/
           cd dist
-          rm manifest-v2.json
           zip -r ../release/yt_chapters_ext_firefox.zip ./*
       - name: Create Release and upload assets
         uses: docker://antonyurchenko/git-release:latest
