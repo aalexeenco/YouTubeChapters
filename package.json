@@ -28,7 +28,7 @@
     "babel-plugin-transform-remove-console": "^6.9.4",
     "eslint": "^9.39.4",
     "eslint-config-prettier": "^10.1.8",
-    "globals": "^17.5.0",
+    "globals": "^17.6.0",
     "jest": "^30.3.0",
     "jest-environment-jsdom": "^30.3.0",
     "jest-stare": "^2.5.3",
